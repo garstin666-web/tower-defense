@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>奶龍保衛戰 (3D Touch-Fixed Tower Defense)</title>
+  <title>奶龍保衛戰 (3D Touch Fixed)</title>
   <style>
     * {
       box-sizing: border-box;
@@ -43,7 +43,7 @@
       flex-direction: column;
       gap: 10px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-      z-index: 100; /* 確保 UI 在最上層 */
+      z-index: 100;
       max-height: calc(100vh - 24px);
       overflow-y: auto;
     }
@@ -230,10 +230,9 @@
     <button id="start-wave-btn" class="action-btn">⚔️ 開始魔物進攻</button>
   </div>
 
-  <div class="controls-hint">💡 觸控提示：單指旋轉視角 | 雙指縮放 | 輕觸草地放置防禦塔</div>
+  <div class="controls-hint">💡 觸控提示：單指滑動旋轉視角 | 點一下草地直接放置防禦塔</div>
 
   <script>
-    // --- 1. 遊戲基礎狀態變數 ---
     const COLS = 16;
     const ROWS = 10;
     const TILE_SIZE = 2;
@@ -253,7 +252,6 @@
     let selectedType = 'arrow';
     let selectedPlacedTower = null;
 
-    // 地圖格點與 3D Waypoints
     const gridPath = [
       {x: 0, y: 2}, {x: 4, y: 2}, {x: 4, y: 7},
       {x: 11, y: 7}, {x: 11, y: 3}, {x: 15, y: 3}
@@ -284,7 +282,6 @@
       frost: { name: '冰晶法塔', cost: 75, range: 5.5, rate: 35, damage: 12, slow: 0.5, color: 0xa855f7 }
     };
 
-    // --- 2. 初始化 Three.js 3D 渲染器、相機與光源 ---
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0a0c16);
@@ -305,7 +302,6 @@
     controls.dampingFactor = 0.08;
     controls.maxPolarAngle = Math.PI / 2.15;
 
-    // 光源設置
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
 
@@ -323,7 +319,6 @@
     dirLight.shadow.camera.bottom = -d;
     scene.add(dirLight);
 
-    // --- 3. 建立 3D 地圖與網格模型 ---
     const gridMeshes = [];
     const gridGroup = new THREE.Group();
 
@@ -349,14 +344,13 @@
     }
     scene.add(gridGroup);
 
-    // 建塔高亮指示框
-    const hoverGeo = new THREE.BoxGeometry(TILE_SIZE, 0.1, TILE_SIZE);
-    const hoverMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.4 });
+    // 點擊高亮指示框
+    const hoverGeo = new THREE.BoxGeometry(TILE_SIZE, 0.15, TILE_SIZE);
+    const hoverMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.7 });
     const hoverMesh = new THREE.Mesh(hoverGeo, hoverMat);
     hoverMesh.visible = false;
     scene.add(hoverMesh);
 
-    // --- 4. 3D 防禦塔與敵人模型生成器 ---
     function create3DTowerMesh(type) {
       const group = new THREE.Group();
       if (type === 'arrow') {
@@ -433,13 +427,13 @@
       return group;
     }
 
-    // --- 5. 核心：全新的觸控與點擊分離邏輯 (避免被 OrbitControls 阻擋) ---
+    // --- 5. 靈敏且穩定的點擊與放置系統 ---
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    let pointerDownX = 0;
-    let pointerDownY = 0;
-    let pointerDownTime = 0;
+    let startX = 0;
+    let startY = 0;
+    let hasMoved = false;
 
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
@@ -447,83 +441,94 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // 監聽按下的起點
-    function handlePointerDown(e) {
+    function onPointerDown(e) {
       if (e.target.tagName === 'BUTTON' || e.target.closest('.ui-overlay')) return;
       const clientX = e.clientX || (e.touches && e.touches[0].clientX);
       const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-      
-      pointerDownX = clientX;
-      pointerDownY = clientY;
-      pointerDownTime = Date.now();
+      startX = clientX;
+      startY = clientY;
+      hasMoved = false;
     }
 
-    // 監聽釋放點 (抬起手指時判定是否為「點擊建塔」)
-    function handlePointerUp(e) {
-      if (e.target.tagName === 'BUTTON' || e.target.closest('.ui-overlay')) return;
+    function onPointerMove(e) {
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      if (Math.hypot(clientX - startX, clientY - startY) > 12) {
+        hasMoved = true; // 超過 12 像素視為拖曳旋轉鏡頭
+      }
 
-      const clientX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
-      const clientY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
-
-      if (clientX === undefined || clientY === undefined) return;
-
-      const moveDist = Math.hypot(clientX - pointerDownX, clientY - pointerDownY);
-      const duration = Date.now() - pointerDownTime;
-
-      // 只有當手指移動距離 < 10 像素 且 按下時間 < 400ms，才代表「點擊選格/建塔」
-      if (moveDist < 10 && duration < 400) {
-        mouse.x = (clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(clientY / window.innerHeight) * 2 + 1;
-
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(gridMeshes);
-
-        if (intersects.length > 0) {
-          const hit = intersects[0].object;
-          const col = hit.userData.col;
-          const row = hit.userData.row;
-
-          const existing = towers.find(t => t.col === col && t.row === row);
-          if (existing) {
-            selectedPlacedTower = existing;
-            updateUI();
-            return;
-          }
-
-          selectedPlacedTower = null;
-
-          if (!hit.userData.isPath) {
-            const config = TOWER_TYPES[selectedType];
-            if (gold >= config.cost) {
-              gold -= config.cost;
-              const mesh = create3DTowerMesh(selectedType);
-              mesh.position.set(hit.position.x, 0.8, hit.position.z);
-              scene.add(mesh);
-
-              towers.push({
-                col, row,
-                mesh: mesh,
-                type: selectedType,
-                cost: config.cost,
-                range: config.range,
-                rate: config.rate,
-                damage: config.damage,
-                level: 1,
-                cooldown: 0
-              });
-            }
-          }
-          updateUI();
-        }
+      // 即時顯示指到的格子高亮
+      mouse.x = (clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(gridMeshes);
+      if (intersects.length > 0) {
+        const hit = intersects[0].object;
+        hoverMesh.position.set(hit.position.x, hit.userData.isPath ? 0.45 : 0.85, hit.position.z);
+        hoverMesh.visible = true;
+      } else {
+        hoverMesh.visible = false;
       }
     }
 
-    // 捕獲階段監聽 (useCapture = true)，優先於 OrbitControls 抓取按下與抬起動作
-    window.addEventListener('mousedown', handlePointerDown, true);
-    window.addEventListener('mouseup', handlePointerUp, true);
+    function onPointerUp(e) {
+      if (e.target.tagName === 'BUTTON' || e.target.closest('.ui-overlay')) return;
+      if (hasMoved) return; // 如果剛剛是在旋轉視角，不執行建塔
 
-    window.addEventListener('touchstart', handlePointerDown, { passive: true, capture: true });
-    window.addEventListener('touchend', handlePointerUp, { passive: true, capture: true });
+      const clientX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
+      const clientY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
+      if (clientX === undefined || clientY === undefined) return;
+
+      mouse.x = (clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(gridMeshes);
+
+      if (intersects.length > 0) {
+        const hit = intersects[0].object;
+        const col = hit.userData.col;
+        const row = hit.userData.row;
+
+        const existing = towers.find(t => t.col === col && t.row === row);
+        if (existing) {
+          selectedPlacedTower = existing;
+          updateUI();
+          return;
+        }
+
+        selectedPlacedTower = null;
+
+        // 如果不是道路，直接建造防禦塔！
+        if (!hit.userData.isPath) {
+          const config = TOWER_TYPES[selectedType];
+          if (gold >= config.cost) {
+            gold -= config.cost;
+            const mesh = create3DTowerMesh(selectedType);
+            mesh.position.set(hit.position.x, 0.8, hit.position.z);
+            scene.add(mesh);
+
+            towers.push({
+              col, row,
+              mesh: mesh,
+              type: selectedType,
+              cost: config.cost,
+              range: config.range,
+              rate: config.rate,
+              damage: config.damage,
+              level: 1,
+              cooldown: 0
+            });
+          }
+        }
+        updateUI();
+      }
+    }
+
+    // 綁定事件並取消事件預設防禦阻擋
+    window.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
 
     // UI 按鈕監聽
     document.querySelectorAll('.tower-btn').forEach(btn => {
@@ -648,7 +653,6 @@
         }
       }
 
-      // 粒子更新
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.mesh.position.add(p.vel);
@@ -659,7 +663,6 @@
         }
       }
 
-      // 敵人移動
       for (let i = enemies.length - 1; i >= 0; i--) {
         const enemy = enemies[i];
         if (enemy.slowTimer > 0) {
@@ -693,7 +696,6 @@
         }
       }
 
-      // 防禦塔射擊
       towers.forEach(tower => {
         if (tower.cooldown > 0) tower.cooldown--;
 
@@ -736,7 +738,6 @@
         }
       });
 
-      // 子彈更新
       for (let i = projectiles.length - 1; i >= 0; i--) {
         const p = projectiles[i];
         if (enemies.includes(p.target)) {
@@ -768,7 +769,6 @@
         }
       }
 
-      // 擊殺結算
       for (let i = enemies.length - 1; i >= 0; i--) {
         if (enemies[i].hp <= 0) {
           gold += enemies[i].reward;
