@@ -1,730 +1,1293 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" class="h-full w-full overflow-hidden">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D 奇幻塔防 (Three.js 3D Tower Defense)</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background: #090a10;
-      color: #f1f5f9;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      user-select: none;
-    }
-    #canvas-container {
-      width: 100vw;
-      height: 100vh;
-      display: block;
-    }
-    .ui-overlay {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      width: 280px;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 12px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      z-index: 10;
-    }
-    h1 {
-      margin: 0;
-      font-size: 20px;
-      color: #38bdf8;
-      text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
-    }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      background: rgba(0,0,0,0.4);
-      padding: 10px;
-      border-radius: 8px;
-    }
-    .stat-card { font-size: 12px; color: #94a3b8; }
-    .stat-val { font-size: 18px; font-weight: bold; color: #facc15; }
-    .stat-val.hp { color: #f43f5e; }
-    
-    .section-title {
-      font-size: 12px;
-      font-weight: bold;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .tower-select {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .tower-btn {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 12px;
-      background: rgba(30, 41, 59, 0.8);
-      border: 2px solid transparent;
-      border-radius: 8px;
-      color: #fff;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .tower-btn:hover { background: rgba(51, 65, 85, 0.9); }
-    .tower-btn.active {
-      border-color: #38bdf8;
-      background: rgba(30, 58, 138, 0.6);
-    }
-    .tower-name { font-size: 13px; font-weight: bold; }
-    .tower-cost { font-size: 12px; color: #facc15; }
-    
-    .action-btn {
-      width: 100%;
-      padding: 10px;
-      font-size: 14px;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
-      background: #38bdf8;
-      color: #0f172a;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .action-btn:hover:not(:disabled) {
-      background: #7dd3fc;
-      transform: translateY(-1px);
-    }
-    .action-btn:disabled {
-      background: #475569;
-      color: #94a3b8;
-      cursor: not-allowed;
-    }
-    .mgmt-box {
-      background: rgba(0,0,0,0.5);
-      padding: 10px;
-      border-radius: 8px;
-      display: none;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .mgmt-box.active { display: flex; }
-    .btn-up { background: #facc15; color: #000; font-weight: bold; padding: 6px; border: none; border-radius: 6px; cursor: pointer; }
-    .btn-sell { background: #ef4444; color: #fff; font-weight: bold; padding: 6px; border: none; border-radius: 6px; cursor: pointer; }
-    
-    .controls-hint {
-      position: absolute;
-      bottom: 15px;
-      left: 20px;
-      font-size: 12px;
-      color: #94a3b8;
-      background: rgba(0,0,0,0.6);
-      padding: 6px 12px;
-      border-radius: 20px;
-      pointer-events: none;
-    }
-  </style>
-  <!-- 載入 Three.js 與 OrbitControls 視角控制庫 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>奶龍保衛戰 (Three.js 3D Tower Defense)</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <!-- Three.js (r128) & OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            touch-action: none;
+            background-color: #0b0f19;
+            color: #ffffff;
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* 浮動 2D 傷害數字層 (將 3D 座標投影至 2D 螢幕) */
+        .damage-pop {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            font-weight: 900;
+            font-family: 'Noto Sans TC', sans-serif;
+            text-shadow: 0 0 6px #000, 0 2px 4px #000;
+            pointer-events: none;
+            animation: floatUpFade 0.7s ease-out forwards;
+            z-index: 25;
+        }
+
+        @keyframes floatUpFade {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); }
+            30% { transform: translate(-50%, -90%) scale(1.25); }
+            100% { opacity: 0; transform: translate(-50%, -140%) scale(0.9); }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(251, 191, 36, 0.8); }
+        }
+
+        .modal-glow {
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        /* 手機按鈕最小尺寸保障 */
+        .touch-btn {
+            min-height: 44px;
+            min-width: 44px;
+        }
+    </style>
 </head>
-<body>
+<body class="relative w-full h-full select-none overflow-hidden">
 
-  <div id="canvas-container"></div>
+    <!-- 3D WebGL Canvas 容器 -->
+    <div id="canvas-container"></div>
 
-  <div class="ui-overlay">
-    <h1>⚔️ 3D 奇幻塔防戰記</h1>
+    <!-- 2D 畫面投影傷害數字層 -->
+    <div id="damage-text-layer" class="absolute inset-0 pointer-events-none z-20"></div>
 
-    <div class="stats-grid">
-      <div class="stat-card">金幣: <div class="stat-val" id="gold-val">160</div></div>
-      <div class="stat-card">城堡生命: <div class="stat-val hp" id="lives-val">15</div></div>
-      <div class="stat-card">進攻波次: <div class="stat-val" id="wave-val">0</div></div>
-      <div class="stat-card">剩餘魔物: <div class="stat-val" id="enemy-val" style="color:#c084fc;">0</div></div>
+    <!-- 頂部 HUD 面板 (Mobile Friendly) -->
+    <header class="absolute top-0 left-0 w-full z-30 p-2 sm:p-3 pointer-events-none">
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-1.5 sm:gap-3 pointer-events-auto">
+            
+            <!-- 左側：標題與波次 -->
+            <div class="bg-slate-900/90 border border-slate-700/80 px-2.5 sm:px-4 py-1.5 rounded-2xl shadow-xl flex items-center gap-2 backdrop-blur-md">
+                <span class="text-amber-400 font-black text-sm sm:text-base hidden sm:inline">🐉 奶龍保衛戰</span>
+                <span id="wave-display" class="font-black text-xs sm:text-sm text-slate-100 font-mono">第 1 / 15 波</span>
+            </div>
+
+            <!-- 中間：玩家等級與 XP 進度條 -->
+            <div class="bg-slate-900/90 border border-slate-700/80 px-3 sm:px-5 py-1.5 rounded-2xl shadow-xl flex flex-col items-center min-w-[130px] sm:min-w-[200px] backdrop-blur-md">
+                <div class="font-black text-xs sm:text-sm text-amber-300 flex items-center gap-1">
+                    <span id="player-level-text">等級 1 (Lv.1)</span>
+                </div>
+                <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden mt-0.5 border border-slate-800">
+                    <div id="xp-bar-fill" class="bg-gradient-to-r from-amber-400 to-yellow-300 h-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div id="xp-text" class="text-[9px] text-slate-300 font-mono mt-0.5 font-bold">XP: 0 / 100</div>
+            </div>
+
+            <!-- 右側：金幣, 生命值與控制按鈕 -->
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <!-- 金幣 -->
+                <div class="bg-amber-950/80 border border-amber-500/60 px-2.5 sm:px-3 py-1.5 rounded-2xl shadow-xl flex items-center gap-1.5 backdrop-blur-md">
+                    <span class="text-amber-400 text-xs sm:text-sm">🪙</span>
+                    <span id="gold-display" class="font-black text-xs sm:text-sm text-amber-300 font-mono">160</span>
+                </div>
+
+                <!-- 城堡生命 -->
+                <div class="bg-rose-950/80 border border-rose-500/60 px-2.5 sm:px-3 py-1.5 rounded-2xl shadow-xl flex items-center gap-1.5 backdrop-blur-md">
+                    <span class="text-rose-500 text-xs sm:text-sm">❤️</span>
+                    <span id="lives-display" class="font-black text-xs sm:text-sm text-rose-200 font-mono">20 / 20</span>
+                </div>
+
+                <!-- 戰鬥/波次啟動按鈕 -->
+                <button id="btn-start-wave" class="touch-btn bg-slate-900/90 border border-emerald-500/80 hover:bg-emerald-600 text-emerald-300 hover:text-white font-black text-xs px-3 py-2 rounded-2xl flex items-center gap-1 shadow-xl backdrop-blur-md transition active:scale-95">
+                    <i class="fa-solid fa-play"></i>
+                    <span id="start-wave-text" class="hidden sm:inline">進攻</span>
+                </button>
+
+                <!-- 速度切換 -->
+                <button id="btn-speed-toggle" class="touch-btn bg-slate-900/90 border border-slate-700 hover:bg-slate-800 text-slate-200 font-black text-xs px-2.5 py-2 rounded-2xl shadow-xl backdrop-blur-md transition active:scale-95 font-mono">
+                    1x
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- 操作提示 -->
+    <div class="absolute top-16 sm:top-20 left-1/2 -translate-x-1/2 bg-slate-900/80 border border-slate-700/80 text-slate-300 px-3 py-1 rounded-full text-[10px] sm:text-xs z-20 pointer-events-none backdrop-blur-md">
+        💡 滑鼠/單指旋轉 3D 視角 | 滾輪/雙指縮放 | 點擊格點建造防禦塔
     </div>
 
-    <div>
-      <div class="section-title">選擇防禦塔</div>
-      <div class="tower-select">
-        <div class="tower-btn active" data-type="arrow">
-          <span class="tower-name">🏹 箭樓石塔</span>
-          <span class="tower-cost">$50</span>
+    <!-- 塔屬性與操作 Inspector (懸浮/邊緣抽屜) -->
+    <div id="tower-inspector" class="hidden absolute bottom-24 right-3 sm:right-6 w-72 bg-slate-900/95 border border-slate-700/90 backdrop-blur-md rounded-2xl p-3.5 shadow-2xl z-40 text-xs">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+            <div class="flex items-center gap-2">
+                <div id="inspector-icon" class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 text-sm">
+                    <i class="fa-solid fa-gem"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-1.5">
+                        <h3 id="inspector-name" class="font-bold text-sm text-white">箭樓石塔</h3>
+                        <span id="inspector-level" class="bg-amber-950 border border-amber-700 text-amber-300 text-[10px] px-1.5 py-0.2 rounded font-mono font-bold">Lvl 1</span>
+                    </div>
+                    <p id="inspector-stats" class="text-slate-400 text-[10px] font-mono mt-0.5">傷害: 20 | 射程: 3.0 | 攻速: 0.3s</p>
+                </div>
+            </div>
+            <button id="btn-close-inspector" class="w-7 h-7 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
-        <div class="tower-btn" data-type="cannon">
-          <span class="tower-name">💣 重型鋼砲</span>
-          <span class="tower-cost">$100</span>
+
+        <!-- 目標優先級選擇 -->
+        <div id="target-strategy-group" class="mb-3">
+            <div class="text-[10px] text-slate-400 font-bold mb-1">優先攻擊目標：</div>
+            <div class="grid grid-cols-3 gap-1">
+                <button data-strategy="FIRST" class="strat-btn text-[10px] py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold transition">最前頭</button>
+                <button data-strategy="STRONGEST" class="strat-btn text-[10px] py-1.5 rounded-lg bg-slate-800 text-slate-400 font-bold hover:text-white transition">血最高</button>
+                <button data-strategy="WEAKEST" class="strat-btn text-[10px] py-1.5 rounded-lg bg-slate-800 text-slate-400 font-bold hover:text-white transition">血最低</button>
+            </div>
         </div>
-        <div class="tower-btn" data-type="frost">
-          <span class="tower-name">❄️ 冰晶法塔</span>
-          <span class="tower-cost">$75</span>
+
+        <!-- 升級與賣出按鈕 -->
+        <div class="grid grid-cols-2 gap-2">
+            <button id="btn-upgrade-tower" class="touch-btn bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs py-2 rounded-xl flex items-center justify-center gap-1 shadow transition active:scale-95">
+                <i class="fa-solid fa-arrow-up"></i>
+                <span>升級 ($<span id="upgrade-cost">80</span>)</span>
+            </button>
+            <button id="btn-sell-tower" class="touch-btn bg-rose-950 border border-rose-800 hover:bg-rose-900 text-rose-300 font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1 transition active:scale-95">
+                <i class="fa-solid fa-trash-can"></i>
+                <span>賣出 (+$<span id="sell-refund">70</span>)</span>
+            </button>
         </div>
-      </div>
     </div>
 
-    <div id="tower-mgmt" class="mgmt-box">
-      <div class="section-title">防禦塔控制</div>
-      <div id="mgmt-info" style="font-size:12px; color:#cbd5e1;">等級: 1</div>
-      <button id="btn-upgrade" class="btn-up">升級</button>
-      <button id="btn-sell" class="btn-sell">出售</button>
+    <!-- 底部 6 欄位防禦塔卡牌選單 (Mobile Optimized) -->
+    <footer class="absolute bottom-2 left-0 w-full z-30 px-2 sm:px-4 pointer-events-none">
+        <div class="max-w-3xl mx-auto bg-slate-900/90 border border-slate-700/80 rounded-2xl p-1.5 sm:p-2 backdrop-blur-md shadow-2xl pointer-events-auto">
+            <div id="slot-cards-container" class="grid grid-cols-6 gap-1.5 sm:gap-2">
+                <!-- JS 動態渲染 6 個防禦塔卡牌 -->
+            </div>
+        </div>
+    </footer>
+
+    <!-- 解鎖 / 升級 彈窗 (Modal Overlay) -->
+    <div id="unlock-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-amber-500/50 rounded-2xl p-6 max-w-sm w-full shadow-2xl flex flex-col items-center text-center modal-glow">
+            <div class="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-400 flex items-center justify-center text-3xl text-amber-400 mb-2">
+                <i id="modal-icon" class="fa-solid fa-crown"></i>
+            </div>
+            <span class="text-xs font-bold uppercase tracking-widest text-amber-400">LEVEL UP! 等級提升</span>
+            <h2 id="modal-title" class="text-xl font-black text-white mt-1">玩家達到 Level 3</h2>
+            <p id="modal-desc" class="text-xs text-slate-300 mt-2 leading-relaxed">
+                恭喜！您已解鎖全新防禦塔：<strong class="text-purple-400" id="modal-unlock-item">雷射塔 (Laser Beam)</strong>！
+            </p>
+            <button id="modal-close-btn" class="mt-5 w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-sm rounded-xl shadow-lg transition active:scale-95">
+                太棒了！繼續戰鬥
+            </button>
+        </div>
     </div>
 
-    <button id="start-wave-btn" class="action-btn">⚔️ 開始魔物進攻</button>
-  </div>
+    <!-- 遊戲結束 彈窗 -->
+    <div id="game-over-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl flex flex-col items-center text-center">
+            <div id="game-over-icon-bg" class="w-16 h-16 rounded-full bg-rose-500/20 border border-rose-500 flex items-center justify-center text-3xl text-rose-500 mb-3">
+                <i id="game-over-icon" class="fa-solid fa-skull"></i>
+            </div>
+            <h2 id="game-over-title" class="text-2xl font-black text-white">城堡淪陷！</h2>
+            <p id="game-over-desc" class="text-xs text-slate-400 mt-1">奶龍大軍衝破了防線！</p>
 
-  <div class="controls-hint">💡 操作提示：按住滑鼠左鍵拖曳可轉動 3D 視角 | 滾輪縮放 | 右鍵平移</div>
+            <div class="w-full bg-slate-950 rounded-xl p-3 my-4 border border-slate-800 flex justify-around font-mono">
+                <div>
+                    <div class="text-[10px] text-slate-500">生存波次</div>
+                    <div id="final-wave" class="text-lg font-bold text-cyan-400">1 / 15</div>
+                </div>
+                <div class="w-px bg-slate-800"></div>
+                <div>
+                    <div class="text-[10px] text-slate-500">總得分</div>
+                    <div id="final-score" class="text-lg font-bold text-amber-400">0</div>
+                </div>
+            </div>
 
-  <script>
-    // --- 1. 遊戲基礎狀態變數 ---
-    const COLS = 16;
-    const ROWS = 10;
-    const TILE_SIZE = 2; // 3D 空間單位尺寸
+            <button id="btn-restart-game" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-rotate-right"></i>
+                <span>重新開始戰鬥</span>
+            </button>
+        </div>
+    </div>
 
-    let gold = 160;
-    let lives = 15;
-    let wave = 0;
-    let waveInProgress = false;
-    let enemiesToSpawn = 0;
-    let spawnTimer = 0;
+    <script>
+        /**
+         * 3D 奶龍保衛戰 (Three.js Engine & Game Logic)
+         */
 
-    let enemies = [];
-    let towers = [];
-    let projectiles = [];
-    let particles = [];
+        // 6 個防禦塔欄位數據
+        const TOWER_SLOTS = [
+            { id: 'arrow',  slotNum: 1, name: '箭樓石塔', engName: 'Arrow',  levelReq: 1, cost: 80,  icon: 'fa-bow-arrow', color: 'emerald' },
+            { id: 'cannon', slotNum: 2, name: '重型鋼砲', engName: 'Cannon', levelReq: 1, cost: 140, icon: 'fa-bomb',      color: 'amber' },
+            { id: 'frost',  slotNum: 3, name: '冰晶法塔', engName: 'Frost',  levelReq: 1, cost: 180, icon: 'fa-snowflake', color: 'cyan' },
+            { id: 'laser',  slotNum: 4, name: '雷射水晶', engName: 'Laser',  levelReq: 3, cost: 260, icon: 'fa-bolt',      color: 'purple' },
+            { id: 'totem',  slotNum: 5, name: '圖騰柱',   engName: 'Totem',  levelReq: 4, cost: 240, icon: 'fa-shield-halved', color: 'indigo' },
+            { id: 'thunder',slotNum: 6, name: '雷霆風暴', engName: 'Thunder',levelReq: 5, cost: 320, icon: 'fa-poo-storm', color: 'yellow' }
+        ];
 
-    let selectedType = 'arrow';
-    let selectedPlacedTower = null;
+        // Web Audio 音效產生器
+        class SoundFX {
+            constructor() { this.ctx = null; }
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+                if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+            }
+            playTone(freq, type, duration, vol = 0.08) {
+                if (!this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch (e) {}
+            }
+            playShoot() { this.playTone(520, 'sawtooth', 0.05, 0.04); }
+            playExplosion() { this.playTone(120, 'square', 0.22, 0.08); }
+            playCoin() { this.playTone(880, 'sine', 0.12, 0.06); }
+            playLevelUp() {
+                if (!this.ctx) return;
+                [523, 659, 783, 1046].forEach((f, idx) => {
+                    setTimeout(() => this.playTone(f, 'sine', 0.18, 0.07), idx * 75);
+                });
+            }
+        }
+        const sound = new SoundFX();
 
-    // 地圖格點與 3D Waypoints (原點位於場景中心)
-    const gridPath = [
-      {x: 0, y: 2}, {x: 4, y: 2}, {x: 4, y: 7},
-      {x: 11, y: 7}, {x: 11, y: 3}, {x: 15, y: 3}
-    ];
+        // 3D 遊戲引擎主體
+        class TowerDefense3DGame {
+            constructor() {
+                this.cols = 14;
+                this.rows = 9;
+                this.tileSize = 2; // 3D 空間單位尺寸
 
-    const waypoints = gridPath.map(pt => new THREE.Vector3(
-      (pt.x - COLS / 2 + 0.5) * TILE_SIZE,
-      0.5,
-      (pt.y - ROWS / 2 + 0.5) * TILE_SIZE
-    ));
+                this.gold = 160;
+                this.lives = 20;
+                this.maxLives = 20;
+                this.wave = 1;
+                this.maxWaves = 15;
+                this.score = 0;
+                this.gameSpeed = 1;
 
-    function isPathTile(col, row) {
-      for (let i = 0; i < gridPath.length - 1; i++) {
-        const p1 = gridPath[i];
-        const p2 = gridPath[i+1];
-        const minX = Math.min(p1.x, p2.x);
-        const maxX = Math.max(p1.x, p2.x);
-        const minY = Math.min(p1.y, p2.y);
-        const maxY = Math.max(p1.y, p2.y);
-        if (col >= minX && col <= maxX && row >= minY && row <= maxY) return true;
-      }
-      return false;
-    }
+                this.playerLevel = 1;
+                this.playerXP = 0;
+                this.xpToNextLevel = 100;
 
-    const TOWER_TYPES = {
-      arrow: { name: '箭樓石塔', cost: 50, range: 6, rate: 20, damage: 18, color: 0x38bdf8 },
-      cannon: { name: '重型鋼砲', cost: 100, range: 7, rate: 60, damage: 55, splash: 3, color: 0xef4444 },
-      frost: { name: '冰晶法塔', cost: 75, range: 5.5, rate: 35, damage: 12, slow: 0.5, color: 0xa855f7 }
-    };
+                this.selectedCardId = null;
+                this.selectedTower = null;
 
-    // --- 2. 初始化 Three.js 3D 渲染器、相機與光源 ---
-    const container = document.getElementById('canvas-container');
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0c16);
-    scene.fog = new THREE.FogExp2(0x0a0c16, 0.02);
+                this.isWaveActive = false;
+                this.spawnQueue = [];
+                this.spawnTimer = 0;
+                this.spawnInterval = 0.9;
 
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 22, 22);
+                this.enemies = [];
+                this.towers = [];
+                this.projectiles = [];
+                this.particles = [];
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    container.appendChild(renderer.domElement);
+                // 地圖路徑座標 (格點點陣)
+                this.gridPath = [
+                    {x: 0, y: 1}, {x: 1, y: 1}, {x: 2, y: 1}, {x: 3, y: 1}, {x: 4, y: 1}, {x: 5, y: 1},
+                    {x: 5, y: 2}, {x: 5, y: 3}, {x: 5, y: 4},
+                    {x: 4, y: 4}, {x: 3, y: 4}, {x: 2, y: 4}, {x: 1, y: 4},
+                    {x: 1, y: 5}, {x: 1, y: 6}, {x: 1, y: 7},
+                    {x: 2, y: 7}, {x: 3, y: 7}, {x: 4, y: 7}, {x: 5, y: 7}, {x: 6, y: 7}, {x: 7, y: 7}, {x: 8, y: 7}, {x: 9, y: 7}, {x: 10, y: 7}, {x: 11, y: 7},
+                    {x: 11, y: 6}, {x: 11, y: 5}, {x: 12, y: 5}, {x: 13, y: 5}
+                ];
 
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.maxPolarAngle = Math.PI / 2.1; // 限制不能低於地面
+                this.grid = Array(this.rows).fill(null).map(() => Array(this.cols).fill(0));
+                this.gridPath.forEach(p => {
+                    if (p.y < this.rows && p.x < this.cols) this.grid[p.y][p.x] = 1; // 1 = 道路
+                });
 
-    // 光源設置
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
+                this.waypoints = this.gridPath.map(pt => new THREE.Vector3(
+                    (pt.x - this.cols / 2 + 0.5) * this.tileSize,
+                    0.5,
+                    (pt.y - this.rows / 2 + 0.5) * this.tileSize
+                ));
 
-    const dirLight = new THREE.DirectionalLight(0xfff5ea, 1.2);
-    dirLight.position.set(15, 25, 15);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 2048;
-    dirLight.shadow.mapSize.height = 2048;
-    dirLight.shadow.camera.near = 0.5;
-    dirLight.shadow.camera.far = 60;
-    const d = 20;
-    dirLight.shadow.camera.left = -d;
-    dirLight.shadow.camera.right = d;
-    dirLight.shadow.camera.top = d;
-    dirLight.shadow.camera.bottom = -d;
-    scene.add(dirLight);
+                this.initThree();
+                this.initGridWorld();
+                this.initControlsAndTouch();
+                this.renderCardsUI();
+                this.updateUI();
 
-    // --- 3. 建立 3D 地圖與網格模型 ---
-    const gridMeshes = [];
-    const gridGroup = new THREE.Group();
+                this.clock = new THREE.Clock();
+                this.animate();
+            }
 
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        const isPath = isPathTile(c, r);
-        const geo = new THREE.BoxGeometry(TILE_SIZE - 0.08, isPath ? 0.4 : 0.8, TILE_SIZE - 0.08);
-        const mat = new THREE.MeshStandardMaterial({
-          color: isPath ? 0x475569 : ((c + r) % 2 === 0 ? 0x1e293b : 0x0f172a),
-          roughness: 0.8
+            initThree() {
+                const container = document.getElementById('canvas-container');
+
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x0c1322);
+                this.scene.fog = new THREE.FogExp2(0x0c1322, 0.015);
+
+                this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.camera.position.set(0, 24, 22);
+
+                this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                container.appendChild(this.renderer.domElement);
+
+                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                this.controls.enableDamping = true;
+                this.controls.dampingFactor = 0.05;
+                this.controls.maxPolarAngle = Math.PI / 2.15; // 不低於地面
+                this.controls.minDistance = 8;
+                this.controls.maxDistance = 50;
+
+                // 光源設定
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+                this.scene.add(ambientLight);
+
+                const dirLight = new THREE.DirectionalLight(0xfff5ea, 1.1);
+                dirLight.position.set(12, 28, 16);
+                dirLight.castShadow = true;
+                dirLight.shadow.mapSize.width = 1024;
+                dirLight.shadow.mapSize.height = 1024;
+                dirLight.shadow.camera.near = 0.5;
+                dirLight.shadow.camera.far = 70;
+                const d = 20;
+                dirLight.shadow.camera.left = -d; dirLight.shadow.camera.right = d;
+                dirLight.shadow.camera.top = d; dirLight.shadow.camera.bottom = -d;
+                this.scene.add(dirLight);
+
+                window.addEventListener('resize', () => {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            }
+
+            initGridWorld() {
+                this.gridMeshes = [];
+                this.gridGroup = new THREE.Group();
+
+                const grassGeo = new THREE.BoxGeometry(this.tileSize - 0.06, 0.6, this.tileSize - 0.06);
+                const pathGeo = new THREE.BoxGeometry(this.tileSize - 0.06, 0.35, this.tileSize - 0.06);
+
+                const grassMat1 = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.7 });
+                const grassMat2 = new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.7 });
+                const pathMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.8 }); // Sand yellow
+
+                for (let r = 0; r < this.rows; r++) {
+                    for (let c = 0; c < this.cols; c++) {
+                        const isPath = (this.grid[r][c] === 1);
+                        const mat = isPath ? pathMat : ((c + r) % 2 === 0 ? grassMat1 : grassMat2);
+                        const geo = isPath ? pathGeo : grassGeo;
+
+                        const mesh = new THREE.Mesh(geo, mat);
+                        mesh.position.set(
+                            (c - this.cols / 2 + 0.5) * this.tileSize,
+                            isPath ? 0.17 : 0.3,
+                            (r - this.rows / 2 + 0.5) * this.tileSize
+                        );
+                        mesh.receiveShadow = true;
+                        mesh.userData = { col: c, row: r, isPath: isPath };
+
+                        this.gridGroup.add(mesh);
+                        this.gridMeshes.push(mesh);
+                    }
+                }
+                this.scene.add(this.gridGroup);
+
+                // 格點高亮與範圍提示圈
+                const hoverGeo = new THREE.BoxGeometry(this.tileSize, 0.1, this.tileSize);
+                const hoverMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24, transparent: true, opacity: 0.45 });
+                this.hoverMesh = new THREE.Mesh(hoverGeo, hoverMat);
+                this.hoverMesh.visible = false;
+                this.scene.add(this.hoverMesh);
+
+                // 建立 3D 傳送門 (Portal) 與 3D 城堡 (Base)
+                this.create3DPortal();
+                this.create3DCastle();
+            }
+
+            create3DPortal() {
+                const startPt = this.waypoints[0];
+                const portalGroup = new THREE.Group();
+
+                const ringGeo = new THREE.TorusGeometry(1.2, 0.25, 12, 24);
+                const ringMat = new THREE.MeshStandardMaterial({ color: 0xc084fc, emissive: 0x7e22ce, roughness: 0.2 });
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.position.y = 1.4;
+                portalGroup.add(ring);
+
+                portalGroup.position.copy(startPt);
+                this.scene.add(portalGroup);
+            }
+
+            create3DCastle() {
+                const endPt = this.waypoints[this.waypoints.length - 1];
+                const castleGroup = new THREE.Group();
+
+                const bodyGeo = new THREE.BoxGeometry(1.8, 1.8, 1.8);
+                const bodyMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.5 });
+                const body = new THREE.Mesh(bodyGeo, bodyMat);
+                body.position.y = 0.9;
+                body.castShadow = true;
+                castleGroup.add(body);
+
+                const roofGeo = new THREE.ConeGeometry(1.3, 1.2, 4);
+                const roofMat = new THREE.MeshStandardMaterial({ color: 0xef4444 });
+                const roof = new THREE.Mesh(roofGeo, roofMat);
+                roof.position.y = 2.4;
+                roof.rotation.y = Math.PI / 4;
+                roof.castShadow = true;
+                castleGroup.add(roof);
+
+                castleGroup.position.copy(endPt);
+                this.scene.add(castleGroup);
+            }
+
+            initControlsAndTouch() {
+                this.raycaster = new THREE.Raycaster();
+                this.mouse = new THREE.Vector2();
+
+                let touchStartX = 0, touchStartY = 0;
+
+                const getPointerPos = (e) => {
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    this.mouse.x = (clientX / window.innerWidth) * 2 - 1;
+                    this.mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+                };
+
+                const handlePointerMove = (e) => {
+                    getPointerPos(e);
+                    this.raycaster.setFromCamera(this.mouse, this.camera);
+                    const intersects = this.raycaster.intersectObjects(this.gridMeshes);
+
+                    if (intersects.length > 0) {
+                        const hit = intersects[0].object;
+                        this.hoverMesh.position.set(hit.position.x, 0.65, hit.position.z);
+                        this.hoverMesh.visible = true;
+                    } else {
+                        this.hoverMesh.visible = false;
+                    }
+                };
+
+                window.addEventListener('mousemove', handlePointerMove);
+
+                window.addEventListener('touchstart', (e) => {
+                    if (e.target.closest('header, footer, #tower-inspector, .modal-glow')) return;
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                }, { passive: true });
+
+                const handlePointerUp = (e) => {
+                    sound.init();
+                    if (e.target.tagName === 'BUTTON' || e.target.closest('header, footer, #tower-inspector, .modal-glow')) return;
+
+                    if (e.changedTouches) {
+                        const distMoved = Math.hypot(e.changedTouches[0].clientX - touchStartX, e.changedTouches[0].clientY - touchStartY);
+                        if (distMoved > 8) return; // 滑動拖曳視角時不觸發點擊建塔
+                    }
+
+                    getPointerPos(e.changedTouches ? e.changedTouches[0] : e);
+                    this.raycaster.setFromCamera(this.mouse, this.camera);
+                    const intersects = this.raycaster.intersectObjects(this.gridMeshes);
+
+                    if (intersects.length > 0) {
+                        const hit = intersects[0].object;
+                        const col = hit.userData.col;
+                        const row = hit.userData.row;
+                        this.handleTileClick(col, row, hit.position);
+                    }
+                };
+
+                window.addEventListener('click', handlePointerUp);
+
+                // UI 觸控綁定
+                document.getElementById('btn-start-wave').addEventListener('click', () => this.startNextWave());
+                document.getElementById('btn-speed-toggle').addEventListener('click', () => {
+                    if (this.gameSpeed === 1) this.gameSpeed = 2;
+                    else if (this.gameSpeed === 2) this.gameSpeed = 3;
+                    else this.gameSpeed = 1;
+                    document.getElementById('btn-speed-toggle').innerText = `${this.gameSpeed}x`;
+                });
+
+                document.getElementById('modal-close-btn').addEventListener('click', () => {
+                    document.getElementById('unlock-modal').classList.add('hidden');
+                });
+
+                document.getElementById('btn-restart-game').addEventListener('click', () => {
+                    location.reload();
+                });
+
+                document.getElementById('btn-close-inspector').addEventListener('click', () => {
+                    this.selectedTower = null;
+                    this.updateInspectorUI();
+                });
+
+                document.getElementById('btn-upgrade-tower').addEventListener('click', () => {
+                    if (this.selectedTower) {
+                        const cost = this.selectedTower.upgradeCost;
+                        if (this.gold >= cost) {
+                            this.gold -= cost;
+                            this.selectedTower.upgrade();
+                            sound.playCoin();
+                            this.updateUI();
+                            this.updateInspectorUI();
+                        }
+                    }
+                });
+
+                document.getElementById('btn-sell-tower').addEventListener('click', () => {
+                    if (this.selectedTower) {
+                        this.gold += this.selectedTower.sellRefund;
+                        this.grid[this.selectedTower.row][this.selectedTower.col] = 0;
+                        this.scene.remove(this.selectedTower.mesh);
+                        this.towers = this.towers.filter(t => t !== this.selectedTower);
+                        sound.playCoin();
+                        this.selectedTower = null;
+                        this.updateUI();
+                        this.updateInspectorUI();
+                    }
+                });
+
+                document.querySelectorAll('.strat-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        if (this.selectedTower) {
+                            this.selectedTower.targetStrategy = e.target.dataset.strategy;
+                            this.updateInspectorUI();
+                        }
+                    });
+                });
+            }
+
+            handleTileClick(col, row, worldPos) {
+                const existingTower = this.towers.find(t => t.col === col && t.row === row);
+                if (existingTower) {
+                    this.selectedTower = existingTower;
+                    this.selectedCardId = null;
+                    this.renderCardsUI();
+                    this.updateInspectorUI();
+                    return;
+                }
+
+                if (this.grid[row][col] === 0 && this.selectedCardId) {
+                    const slotData = TOWER_SLOTS.find(s => s.id === this.selectedCardId);
+                    if (slotData && this.gold >= slotData.cost) {
+                        this.gold -= slotData.cost;
+
+                        const tower = new Tower3D(col, row, worldPos, this.selectedCardId, this.tileSize);
+                        this.scene.add(tower.mesh);
+                        this.towers.push(tower);
+                        this.grid[row][col] = 2; // 被塔佔用
+
+                        sound.playCoin();
+                        this.selectedTower = tower;
+                        this.selectedCardId = null;
+                        this.renderCardsUI();
+                        this.updateUI();
+                        this.updateInspectorUI();
+                    }
+                } else {
+                    this.selectedTower = null;
+                    this.updateInspectorUI();
+                }
+            }
+
+            addXP(amount) {
+                this.playerXP += amount;
+                while (this.playerXP >= this.xpToNextLevel) {
+                    this.playerXP -= this.xpToNextLevel;
+                    this.playerLevel++;
+                    this.xpToNextLevel = Math.floor(100 * Math.pow(1.35, this.playerLevel - 1));
+                    sound.playLevelUp();
+                    this.checkLevelUnlocks();
+                }
+                this.updateUI();
+            }
+
+            checkLevelUnlocks() {
+                const unlockedSlot = TOWER_SLOTS.find(s => s.levelReq === this.playerLevel && s.levelReq > 1);
+                if (unlockedSlot) {
+                    document.getElementById('modal-title').innerText = `玩家提升至 Level ${this.playerLevel}`;
+                    document.getElementById('modal-unlock-item').innerText = `${unlockedSlot.name} (${unlockedSlot.engName})`;
+                    document.getElementById('unlock-modal').classList.remove('hidden');
+                }
+                this.renderCardsUI();
+            }
+
+            renderCardsUI() {
+                const container = document.getElementById('slot-cards-container');
+                container.innerHTML = '';
+
+                TOWER_SLOTS.forEach(slot => {
+                    const isUnlocked = this.playerLevel >= slot.levelReq;
+                    const isSelected = this.selectedCardId === slot.id;
+
+                    const card = document.createElement('div');
+                    if (isUnlocked) {
+                        card.className = `touch-btn p-1.5 rounded-xl border flex flex-col items-center justify-between cursor-pointer transition active:scale-95 ${
+                            isSelected ? 'bg-amber-950 border-amber-400 ring-2 ring-amber-400/50 shadow-lg' : 'bg-slate-950/80 border-slate-700/80 hover:border-slate-500'
+                        }`;
+                        card.innerHTML = `
+                            <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-slate-900 flex items-center justify-center text-${slot.color}-400 text-xs sm:text-sm mb-0.5">
+                                <i class="fa-solid ${slot.icon}"></i>
+                            </div>
+                            <div class="text-center leading-tight w-full">
+                                <div class="font-bold text-[10px] sm:text-xs text-white truncate">${slot.name}</div>
+                                <div class="text-[10px] sm:text-xs text-amber-300 font-mono font-black mt-0.5">🪙${slot.cost}</div>
+                            </div>
+                        `;
+                        card.addEventListener('click', () => {
+                            sound.init();
+                            this.selectedCardId = (this.selectedCardId === slot.id) ? null : slot.id;
+                            this.selectedTower = null;
+                            this.updateInspectorUI();
+                            this.renderCardsUI();
+                        });
+                    } else {
+                        card.className = 'touch-btn p-1.5 rounded-xl border border-slate-800 bg-slate-950/40 flex flex-col items-center justify-center text-center opacity-60 cursor-not-allowed';
+                        card.innerHTML = `
+                            <div class="text-slate-500 text-xs mb-0.5"><i class="fa-solid fa-lock"></i></div>
+                            <div class="font-bold text-[9px] sm:text-[10px] text-slate-400 leading-tight">Lv.${slot.levelReq}</div>
+                        `;
+                    }
+                    container.appendChild(card);
+                });
+            }
+
+            spawnFloatingText(worldPos, text, color = '#fbbf24') {
+                const layer = document.getElementById('damage-text-layer');
+
+                // 將 3D 世界座標投影至 2D 螢幕座標
+                const tempV = worldPos.clone();
+                tempV.project(this.camera);
+
+                const x = (tempV.x *  .5 + .5) * window.innerWidth;
+                const y = (tempV.y * -.5 + .5) * window.innerHeight;
+
+                const div = document.createElement('div');
+                div.className = 'damage-pop';
+                div.style.left = `${x}px`;
+                div.style.top = `${y}px`;
+                div.style.color = color;
+                div.innerText = text;
+
+                layer.appendChild(div);
+                setTimeout(() => div.remove(), 700);
+            }
+
+            startNextWave() {
+                if (this.isWaveActive) return;
+
+                this.isWaveActive = true;
+                this.spawnQueue = [];
+
+                const normalDragons = Math.floor(4 + this.wave * 2);
+                const fastDragons = Math.floor(2 + this.wave * 1.5);
+                const armoredDragons = Math.floor(this.wave * 0.8);
+                const bossDragons = (this.wave % 5 === 0) ? Math.floor(this.wave / 5) : 0;
+
+                for (let i = 0; i < normalDragons; i++) this.spawnQueue.push('normal');
+                for (let i = 0; i < fastDragons; i++) this.spawnQueue.push('fast');
+                for (let i = 0; i < armoredDragons; i++) this.spawnQueue.push('armored');
+                for (let i = 0; i < bossDragons; i++) this.spawnQueue.push('boss');
+
+                this.spawnQueue.sort(() => Math.random() - 0.5);
+                this.updateUI();
+            }
+
+            triggerGameOver(isVictory) {
+                this.gameSpeed = 0;
+                const modal = document.getElementById('game-over-modal');
+                document.getElementById('final-wave').innerText = `${this.wave} / ${this.maxWaves}`;
+                document.getElementById('final-score').innerText = this.score;
+
+                if (isVictory) {
+                    document.getElementById('game-over-title').innerText = '勝利！捍衛奶龍王國！';
+                    document.getElementById('game-over-desc').innerText = '您成功擊退了全部 15 波奶龍魔物大軍！';
+                    document.getElementById('game-over-icon').className = 'fa-solid fa-trophy';
+                    document.getElementById('game-over-icon-bg').className = 'w-16 h-16 rounded-full bg-amber-500/20 border border-amber-500 flex items-center justify-center text-3xl text-amber-400 mb-3';
+                }
+                modal.classList.remove('hidden');
+            }
+
+            updateUI() {
+                document.getElementById('wave-display').innerText = `第 ${this.wave} / ${this.maxWaves} 波`;
+                document.getElementById('player-level-text').innerText = `等級 ${this.playerLevel} (Lv.${this.playerLevel})`;
+                document.getElementById('gold-display').innerText = `${this.gold}`;
+                document.getElementById('lives-display').innerText = `${this.lives} / ${this.maxLives}`;
+
+                document.getElementById('xp-text').innerText = `XP: ${this.playerXP} / ${this.xpToNextLevel}`;
+                const xpPct = Math.min(100, (this.playerXP / this.xpToNextLevel) * 100);
+                document.getElementById('xp-bar-fill').style.width = `${xpPct}%`;
+
+                const btnWave = document.getElementById('btn-start-wave');
+                if (this.isWaveActive) {
+                    btnWave.disabled = true;
+                    document.getElementById('start-wave-text').innerText = '戰鬥中';
+                    btnWave.className = 'touch-btn bg-slate-900/90 border border-slate-700 text-slate-500 font-black text-xs px-3 py-2 rounded-2xl flex items-center gap-1 opacity-60 cursor-not-allowed';
+                } else {
+                    btnWave.disabled = false;
+                    document.getElementById('start-wave-text').innerText = '進攻';
+                    btnWave.className = 'touch-btn bg-slate-900/90 border border-emerald-500/80 hover:bg-emerald-600 text-emerald-300 hover:text-white font-black text-xs px-3 py-2 rounded-2xl flex items-center gap-1 shadow-xl transition active:scale-95';
+                }
+            }
+
+            updateInspectorUI() {
+                const inspector = document.getElementById('tower-inspector');
+                if (!this.selectedTower) {
+                    inspector.classList.add('hidden');
+                    return;
+                }
+
+                inspector.classList.remove('hidden');
+                document.getElementById('inspector-name').innerText = this.selectedTower.name;
+                document.getElementById('inspector-level').innerText = `Lvl ${this.selectedTower.level}`;
+
+                if (this.selectedTower.type === 'totem') {
+                    document.getElementById('inspector-stats').innerText = `射程: ${this.selectedTower.rangeGrid} 格 | 光環: +30% 攻擊 / +25% 攻速`;
+                    document.getElementById('target-strategy-group').classList.add('hidden');
+                } else {
+                    document.getElementById('inspector-stats').innerText = `傷害: ${Math.round(this.selectedTower.damage)} | 射程: ${this.selectedTower.rangeGrid} 格 | 攻速: ${this.selectedTower.fireRate}s`;
+                    document.getElementById('target-strategy-group').classList.remove('hidden');
+                }
+
+                document.getElementById('upgrade-cost').innerText = this.selectedTower.upgradeCost;
+                document.getElementById('sell-refund').innerText = this.selectedTower.sellRefund;
+
+                document.querySelectorAll('.strat-btn').forEach(btn => {
+                    const isCurrent = (btn.dataset.strategy === this.selectedTower.targetStrategy);
+                    btn.className = isCurrent
+                        ? 'strat-btn text-[10px] py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold transition'
+                        : 'strat-btn text-[10px] py-1.5 rounded-lg bg-slate-800 text-slate-400 font-bold hover:text-white transition';
+                });
+            }
+
+            updateGame(dt) {
+                if (this.gameSpeed === 0) return;
+                const scaledDt = dt * this.gameSpeed;
+
+                // 重置圖騰光環
+                this.towers.forEach(t => {
+                    t.buffDmgMult = 1.0;
+                    t.buffSpeedMult = 1.0;
+                });
+
+                // 奶龍魔物生成邏輯
+                if (this.isWaveActive && this.spawnQueue.length > 0) {
+                    this.spawnTimer += scaledDt;
+                    if (this.spawnTimer >= this.spawnInterval) {
+                        this.spawnTimer = 0;
+                        const type = this.spawnQueue.pop();
+                        const e = new MilkDragonEnemy3D(type, this.wave, this.waypoints);
+                        this.scene.add(e.mesh);
+                        this.enemies.push(e);
+                    }
+                }
+
+                // 波次結束檢測
+                if (this.isWaveActive && this.spawnQueue.length === 0 && this.enemies.filter(e => e.active).length === 0) {
+                    this.isWaveActive = false;
+                    const bonusGold = 85 + this.wave * 25;
+                    const bonusXP = 65 + this.wave * 20;
+                    this.gold += bonusGold;
+                    this.addXP(bonusXP);
+                    sound.playCoin();
+
+                    if (this.wave < this.maxWaves) {
+                        this.wave++;
+                    } else {
+                        this.triggerGameOver(true);
+                    }
+                    this.updateUI();
+                }
+
+                this.towers.forEach(t => t.update(scaledDt, this));
+                this.enemies.forEach(e => e.update(scaledDt, this));
+                this.projectiles.forEach(p => p.update(scaledDt, this));
+                this.particles.forEach(p => p.update(scaledDt, this));
+
+                // 清除失效物件
+                this.enemies = this.enemies.filter(e => e.active);
+                this.projectiles = this.projectiles.filter(p => p.active);
+                this.particles = this.particles.filter(p => p.active);
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                const dt = Math.min(0.1, this.clock.getDelta());
+                this.controls.update();
+                this.updateGame(dt);
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
+
+        // 3D 防禦塔類別
+        class Tower3D {
+            constructor(col, row, worldPos, type, tileSize) {
+                this.col = col;
+                this.row = row;
+                this.type = type;
+                this.tileSize = tileSize;
+                this.level = 1;
+                this.targetStrategy = 'FIRST';
+                this.cooldownTimer = 0;
+                this.buffDmgMult = 1.0;
+                this.buffSpeedMult = 1.0;
+
+                this.setupStats();
+                this.mesh = this.create3DTowerMesh(worldPos);
+            }
+
+            setupStats() {
+                if (this.type === 'arrow') {
+                    this.name = '箭樓石塔'; this.rangeGrid = 3.0; this.fireRate = 0.3;
+                    this.baseDamage = 22 * Math.pow(1.35, this.level - 1); this.cost = 80;
+                } else if (this.type === 'cannon') {
+                    this.name = '重型鋼砲'; this.rangeGrid = 3.2; this.fireRate = 1.2;
+                    this.baseDamage = 80 * Math.pow(1.4, this.level - 1); this.cost = 140; this.splashRadius = 3.2;
+                } else if (this.type === 'frost') {
+                    this.name = '冰晶法塔'; this.rangeGrid = 2.8; this.fireRate = 1.0;
+                    this.baseDamage = 35 * Math.pow(1.35, this.level - 1); this.cost = 180; this.slowFactor = 0.5;
+                } else if (this.type === 'laser') {
+                    this.name = '雷射水晶'; this.rangeGrid = 3.5; this.fireRate = 0.1;
+                    this.baseDamage = 11 * Math.pow(1.35, this.level - 1); this.cost = 260;
+                } else if (this.type === 'totem') {
+                    this.name = '圖騰柱';   this.rangeGrid = 2.6; this.fireRate = 1.0;
+                    this.baseDamage = 0;  this.cost = 240;
+                } else if (this.type === 'thunder') {
+                    this.name = '雷霆風暴'; this.rangeGrid = 3.8; this.fireRate = 0.8;
+                    this.baseDamage = 110 * Math.pow(1.4, this.level - 1); this.cost = 320;
+                }
+            }
+
+            get rangePx() { return this.rangeGrid * this.tileSize; }
+            get damage() { return this.baseDamage * this.buffDmgMult; }
+            get effectiveFireRate() { return this.fireRate / this.buffSpeedMult; }
+            get upgradeCost() { return Math.round(this.cost * 0.85 * Math.pow(1.3, this.level - 1)); }
+            get sellRefund() { return Math.round(this.cost * 0.7 * this.level); }
+
+            upgrade() {
+                this.level++;
+                this.setupStats();
+                this.mesh.scale.multiplyScalar(1.08); // 模型稍微增大
+            }
+
+            create3DTowerMesh(pos) {
+                const group = new THREE.Group();
+
+                if (this.type === 'arrow') {
+                    const baseGeo = new THREE.CylinderGeometry(0.7, 0.8, 1.8, 8);
+                    const baseMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.5 });
+                    const base = new THREE.Mesh(baseGeo, baseMat);
+                    base.position.y = 0.9;
+                    base.castShadow = true;
+                    group.add(base);
+
+                    const roofGeo = new THREE.ConeGeometry(0.9, 0.8, 8);
+                    const roofMat = new THREE.MeshStandardMaterial({ color: 0xb45309 });
+                    const roof = new THREE.Mesh(roofGeo, roofMat);
+                    roof.position.y = 2.1;
+                    roof.castShadow = true;
+                    group.add(roof);
+
+                } else if (this.type === 'cannon') {
+                    const baseGeo = new THREE.BoxGeometry(1.4, 0.8, 1.4);
+                    const baseMat = new THREE.MeshStandardMaterial({ color: 0x334155 });
+                    const base = new THREE.Mesh(baseGeo, baseMat);
+                    base.position.y = 0.4;
+                    base.castShadow = true;
+                    group.add(base);
+
+                    const barrelGeo = new THREE.CylinderGeometry(0.3, 0.35, 1.2, 12);
+                    const barrelMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8, roughness: 0.2 });
+                    const barrel = new THREE.Mesh(barrelGeo, barrelMat);
+                    barrel.rotation.x = Math.PI / 3;
+                    barrel.position.set(0, 1.0, 0.2);
+                    barrel.castShadow = true;
+                    group.add(barrel);
+
+                } else if (this.type === 'frost') {
+                    const baseGeo = new THREE.CylinderGeometry(0.5, 0.7, 1.2, 6);
+                    const baseMat = new THREE.MeshStandardMaterial({ color: 0x0284c7 });
+                    const base = new THREE.Mesh(baseGeo, baseMat);
+                    base.position.y = 0.6;
+                    base.castShadow = true;
+                    group.add(base);
+
+                    const crystalGeo = new THREE.OctahedronGeometry(0.65, 0);
+                    const crystalMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, roughness: 0.1 });
+                    const crystal = new THREE.Mesh(crystalGeo, crystalMat);
+                    crystal.position.y = 1.8;
+                    crystal.castShadow = true;
+                    group.add(crystal);
+
+                } else if (this.type === 'laser') {
+                    const baseGeo = new THREE.CylinderGeometry(0.6, 0.8, 1.4, 8);
+                    const baseMat = new THREE.MeshStandardMaterial({ color: 0x581c87 });
+                    const base = new THREE.Mesh(baseGeo, baseMat);
+                    base.position.y = 0.7;
+                    group.add(base);
+
+                    const orbGeo = new THREE.SphereGeometry(0.5, 12, 12);
+                    const orbMat = new THREE.MeshStandardMaterial({ color: 0xc084fc, emissive: 0xa855f7 });
+                    const orb = new THREE.Mesh(orbGeo, orbMat);
+                    orb.position.y = 1.8;
+                    group.add(orb);
+
+                } else if (this.type === 'totem') {
+                    const poleGeo = new THREE.BoxGeometry(0.8, 2.2, 0.8);
+                    const poleMat = new THREE.MeshStandardMaterial({ color: 0x312e81, roughness: 0.4 });
+                    const pole = new THREE.Mesh(poleGeo, poleMat);
+                    pole.position.y = 1.1;
+                    group.add(pole);
+
+                } else if (this.type === 'thunder') {
+                    const baseGeo = new THREE.CylinderGeometry(0.7, 0.9, 1.5, 8);
+                    const baseMat = new THREE.MeshStandardMaterial({ color: 0x854d0e });
+                    const base = new THREE.Mesh(baseGeo, baseMat);
+                    base.position.y = 0.75;
+                    group.add(base);
+
+                    const topGeo = new THREE.DodecahedronGeometry(0.6);
+                    const topMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0xeab308 });
+                    const top = new THREE.Mesh(topGeo, topMat);
+                    top.position.y = 1.9;
+                    group.add(top);
+                }
+
+                group.position.set(pos.x, 0.3, pos.z);
+                return group;
+            }
+
+            update(dt, game) {
+                if (this.type === 'totem') {
+                    game.towers.forEach(t => {
+                        if (t !== this) {
+                            const dist = this.mesh.position.distanceTo(t.mesh.position);
+                            if (dist <= this.rangePx) {
+                                t.buffDmgMult = Math.max(t.buffDmgMult, 1.30);
+                                t.buffSpeedMult = Math.max(t.buffSpeedMult, 1.25);
+                            }
+                        }
+                    });
+                    return;
+                }
+
+                if (this.cooldownTimer > 0) this.cooldownTimer -= dt;
+
+                const target = this.acquireTarget(game.enemies);
+
+                if (target) {
+                    this.mesh.lookAt(target.mesh.position.x, this.mesh.position.y, target.mesh.position.z);
+
+                    if (this.type === 'laser') {
+                        if (this.cooldownTimer <= 0) {
+                            target.takeDamage(this.damage, game);
+                            this.cooldownTimer = this.effectiveFireRate;
+                            game.particles.push(new LaserLine3D(
+                                this.mesh.position.clone().add(new THREE.Vector3(0, 1.8, 0)),
+                                target.mesh.position.clone().add(new THREE.Vector3(0, 0.5, 0)),
+                                game.scene
+                            ));
+                        }
+                    } else if (this.cooldownTimer <= 0) {
+                        this.shoot(target, game);
+                        this.cooldownTimer = this.effectiveFireRate;
+                    }
+                }
+            }
+
+            acquireTarget(enemies) {
+                const inRange = enemies.filter(e => e.active && this.mesh.position.distanceTo(e.mesh.position) <= this.rangePx);
+                if (inRange.length === 0) return null;
+
+                if (this.targetStrategy === 'FIRST') {
+                    return inRange.reduce((p, c) => c.distanceTraveled > p.distanceTraveled ? c : p);
+                } else if (this.targetStrategy === 'STRONGEST') {
+                    return inRange.reduce((p, c) => c.hp > p.hp ? c : p);
+                } else if (this.targetStrategy === 'WEAKEST') {
+                    return inRange.reduce((p, c) => c.hp < p.hp ? c : p);
+                }
+                return inRange[0];
+            }
+
+            shoot(target, game) {
+                const startPos = this.mesh.position.clone().add(new THREE.Vector3(0, 1.5, 0));
+                game.projectiles.push(new Projectile3D(startPos, target, this.damage, this.type, this.splashRadius || 0, this.slowFactor || 0, game.scene));
+            }
+        }
+
+        // 3D 奶龍魔物類別 (Milk Dragon Custom Procedural Mesh)
+        class MilkDragonEnemy3D {
+            constructor(type, waveNum, waypoints) {
+                this.type = type;
+                this.waypoints = waypoints;
+                this.targetIdx = 1;
+                this.distanceTraveled = 0;
+                this.active = true;
+                this.slowTimer = 0;
+                this.slowFactor = 0;
+
+                if (type === 'normal') {
+                    this.baseSpeed = 2.2; this.maxHp = 60 + waveNum * 25; this.reward = 12; this.xpReward = 15;
+                } else if (type === 'fast') {
+                    this.baseSpeed = 3.6; this.maxHp = 45 + waveNum * 20; this.reward = 16; this.xpReward = 20;
+                } else if (type === 'armored') {
+                    this.baseSpeed = 1.4; this.maxHp = 220 + waveNum * 95; this.reward = 32; this.xpReward = 40;
+                } else if (type === 'boss') {
+                    this.baseSpeed = 1.0; this.maxHp = 800 + waveNum * 350; this.reward = 90; this.xpReward = 120;
+                }
+
+                this.hp = this.maxHp;
+                this.speed = this.baseSpeed;
+                this.mesh = this.createMilkDragonMesh();
+                this.mesh.position.copy(waypoints[0]);
+            }
+
+            createMilkDragonMesh() {
+                const dragonGroup = new THREE.Group();
+
+                // 奶龍經典亮黃色與淺黃肚子貼色
+                const bodyColor = (this.type === 'armored') ? 0xeab308 : (this.type === 'fast') ? 0xfde047 : 0xfacc15;
+                const bellyColor = 0xfef08a;
+
+                const scale = (this.type === 'boss') ? 1.8 : (this.type === 'armored') ? 1.3 : 1.0;
+
+                // 圓滾滾身軀
+                const bodyGeo = new THREE.SphereGeometry(0.55 * scale, 12, 12);
+                const bodyMat = new THREE.MeshStandardMaterial({ color: bodyColor, roughness: 0.3 });
+                const body = new THREE.Mesh(bodyGeo, bodyMat);
+                body.position.y = 0.5 * scale;
+                body.castShadow = true;
+                dragonGroup.add(body);
+
+                // 圓萌頭部
+                const headGeo = new THREE.SphereGeometry(0.42 * scale, 12, 12);
+                const head = new THREE.Mesh(headGeo, bodyMat);
+                head.position.set(0, 0.95 * scale, 0.2 * scale);
+                head.castShadow = true;
+                dragonGroup.add(head);
+
+                // 肚皮
+                const bellyGeo = new THREE.SphereGeometry(0.4 * scale, 8, 8);
+                const bellyMat = new THREE.MeshStandardMaterial({ color: bellyColor, roughness: 0.4 });
+                const belly = new THREE.Mesh(bellyGeo, bellyMat);
+                belly.position.set(0, 0.5 * scale, 0.25 * scale);
+                dragonGroup.add(belly);
+
+                // 小龍角 (2個)
+                const hornGeo = new THREE.ConeGeometry(0.08 * scale, 0.25 * scale, 6);
+                const hornMat = new THREE.MeshStandardMaterial({ color: 0xf97316 }); // 橘黃龍角
+                const hornL = new THREE.Mesh(hornGeo, hornMat);
+                hornL.position.set(-0.15 * scale, 1.35 * scale, 0.15 * scale);
+                dragonGroup.add(hornL);
+
+                const hornR = hornL.clone();
+                hornR.position.x = 0.15 * scale;
+                dragonGroup.add(hornR);
+
+                // 眼睛 (黑眼珠)
+                const eyeGeo = new THREE.SphereGeometry(0.06 * scale, 6, 6);
+                const eyeMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
+                const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+                eyeL.position.set(-0.16 * scale, 1.0 * scale, 0.58 * scale);
+                dragonGroup.add(eyeL);
+
+                const eyeR = eyeL.clone();
+                eyeR.position.x = 0.16 * scale;
+                dragonGroup.add(eyeR);
+
+                return dragonGroup;
+            }
+
+            applySlow(factor, duration) {
+                this.slowFactor = Math.max(this.slowFactor, factor);
+                this.slowTimer = Math.max(this.slowTimer, duration);
+            }
+
+            takeDamage(amount, game) {
+                this.hp -= amount;
+                game.spawnFloatingText(this.mesh.position.clone().add(new THREE.Vector3(0, 1.2, 0)), `-${Math.round(amount)}`, this.slowTimer > 0 ? '#38bdf8' : '#facc15');
+
+                if (this.hp <= 0 && this.active) {
+                    this.active = false;
+                    game.scene.remove(this.mesh);
+                    game.gold += this.reward;
+                    game.score += this.reward * 2;
+                    game.addXP(this.xpReward);
+                    sound.playCoin();
+                    game.updateUI();
+                }
+            }
+
+            update(dt, game) {
+                if (!this.active) return;
+
+                if (this.slowTimer > 0) {
+                    this.slowTimer -= dt;
+                    this.speed = this.baseSpeed * (1 - this.slowFactor);
+                    if (this.slowTimer <= 0) {
+                        this.slowFactor = 0;
+                        this.speed = this.baseSpeed;
+                    }
+                }
+
+                if (this.targetIdx >= this.waypoints.length) return;
+
+                const target = this.waypoints[this.targetIdx];
+                const dir = new THREE.Vector3().subVectors(target, this.mesh.position);
+                const dist = dir.length();
+                const step = this.speed * dt;
+
+                this.distanceTraveled += step;
+
+                if (dist <= step) {
+                    this.mesh.position.copy(target);
+                    this.targetIdx++;
+
+                    if (this.targetIdx >= this.waypoints.length) {
+                        this.active = false;
+                        game.scene.remove(this.mesh);
+                        game.lives -= 1;
+                        game.updateUI();
+                        if (game.lives <= 0) game.triggerGameOver(false);
+                    }
+                } else {
+                    dir.normalize();
+                    this.mesh.position.addScaledVector(dir, step);
+                    this.mesh.lookAt(target.x, this.mesh.position.y, target.z);
+                }
+            }
+        }
+
+        // 3D 投射物類別
+        class Projectile3D {
+            constructor(startPos, target, damage, type, splashRadius, slowFactor, scene) {
+                this.startPos = startPos.clone();
+                this.currentPos = startPos.clone();
+                this.target = target;
+                this.damage = damage;
+                this.type = type;
+                this.splashRadius = splashRadius;
+                this.slowFactor = slowFactor;
+                this.scene = scene;
+                this.active = true;
+                this.speed = (type === 'cannon') ? 14 : 22;
+
+                const pGeo = new THREE.SphereGeometry(0.18, 8, 8);
+                const pMat = new THREE.MeshBasicMaterial({ color: (type === 'cannon') ? 0xf59e0b : 0x38bdf8 });
+                this.mesh = new THREE.Mesh(pGeo, pMat);
+                this.mesh.position.copy(startPos);
+                scene.add(this.mesh);
+            }
+
+            update(dt, game) {
+                if (!this.active || !this.target || !this.target.active) {
+                    this.active = false;
+                    this.scene.remove(this.mesh);
+                    return;
+                }
+
+                const targetPos = this.target.mesh.position.clone().add(new THREE.Vector3(0, 0.5, 0));
+                const dir = new THREE.Vector3().subVectors(targetPos, this.mesh.position);
+                const dist = dir.length();
+                const step = this.speed * dt;
+
+                if (dist <= step) {
+                    this.onHit(game);
+                    this.active = false;
+                    this.scene.remove(this.mesh);
+                } else {
+                    dir.normalize();
+                    this.mesh.position.addScaledVector(dir, step);
+                }
+            }
+
+            onHit(game) {
+                if (this.splashRadius > 0) {
+                    game.enemies.forEach(e => {
+                        if (e.active && e.mesh.position.distanceTo(this.mesh.position) <= this.splashRadius) {
+                            e.takeDamage(this.damage, game);
+                            if (this.slowFactor > 0) e.applySlow(this.slowFactor, 2.0);
+                        }
+                    });
+                    sound.playExplosion();
+                } else {
+                    this.target.takeDamage(this.damage, game);
+                    if (this.slowFactor > 0) this.target.applySlow(this.slowFactor, 2.0);
+                    sound.playShoot();
+                }
+            }
+        }
+
+        // 3D 雷射線粒子
+        class LaserLine3D {
+            constructor(p1, p2, scene) {
+                this.scene = scene;
+                this.life = 0.08;
+                this.active = true;
+
+                const geo = new THREE.BufferGeometry().setFromPoints([p1, p2]);
+                const mat = new THREE.LineBasicMaterial({ color: 0xc084fc, linewidth: 3 });
+                this.line = new THREE.Line(geo, mat);
+                scene.add(this.line);
+            }
+            
+            update(dt) {
+                this.life -= dt;
+                if (this.life <= 0) {
+                    this.active = false;
+                    this.scene.remove(this.line);
+                }
+            }
+        }
+
+        // 啟動遊戲
+        window.addEventListener('load', () => {
+            new TowerDefense3DGame();
         });
-        const mesh = new THREE.Mesh(geo, mat);
-        mesh.position.set(
-          (c - COLS / 2 + 0.5) * TILE_SIZE,
-          isPath ? 0.2 : 0.4,
-          (r - ROWS / 2 + 0.5) * TILE_SIZE
-        );
-        mesh.receiveShadow = true;
-        mesh.userData = { col: c, row: r, isPath: isPath };
-        gridGroup.add(mesh);
-        gridMeshes.push(mesh);
-      }
-    }
-    scene.add(gridGroup);
-
-    // 建塔高亮指示框
-    const hoverGeo = new THREE.BoxGeometry(TILE_SIZE, 0.1, TILE_SIZE);
-    const hoverMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.4 });
-    const hoverMesh = new THREE.Mesh(hoverGeo, hoverMat);
-    hoverMesh.visible = false;
-    scene.add(hoverMesh);
-
-    // --- 4. 3D 防禦塔與敵人模型生成器 ---
-    function create3DTowerMesh(type) {
-      const group = new THREE.Group();
-      if (type === 'arrow') {
-        // 石造箭塔
-        const baseGeo = new THREE.CylinderGeometry(0.7, 0.8, 1.8, 8);
-        const baseMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.5 });
-        const base = new THREE.Mesh(baseGeo, baseMat);
-        base.position.y = 0.9;
-        base.castShadow = true;
-        group.add(base);
-
-        const roofGeo = new THREE.ConeGeometry(0.9, 0.8, 8);
-        const roofMat = new THREE.MeshStandardMaterial({ color: 0xb45309 });
-        const roof = new THREE.Mesh(roofGeo, roofMat);
-        roof.position.y = 2.1;
-        roof.castShadow = true;
-        group.add(roof);
-      } else if (type === 'cannon') {
-        // 重型鋼砲
-        const baseGeo = new THREE.BoxGeometry(1.4, 0.8, 1.4);
-        const baseMat = new THREE.MeshStandardMaterial({ color: 0x334155 });
-        const base = new THREE.Mesh(baseGeo, baseMat);
-        base.position.y = 0.4;
-        base.castShadow = true;
-        group.add(base);
-
-        const barrelGeo = new THREE.CylinderGeometry(0.3, 0.35, 1.2, 12);
-        const barrelMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.2 });
-        const barrel = new THREE.Mesh(barrelGeo, barrelMat);
-        barrel.rotation.x = Math.PI / 3;
-        barrel.position.set(0, 1.0, 0.2);
-        barrel.castShadow = true;
-        group.add(barrel);
-      } else if (type === 'frost') {
-        // 冰晶法塔
-        const baseGeo = new THREE.CylinderGeometry(0.5, 0.7, 1.2, 6);
-        const baseMat = new THREE.MeshStandardMaterial({ color: 0x475569 });
-        const base = new THREE.Mesh(baseGeo, baseMat);
-        base.position.y = 0.6;
-        base.castShadow = true;
-        group.add(base);
-
-        const crystalGeo = new THREE.OctahedronGeometry(0.6, 0);
-        const crystalMat = new THREE.MeshStandardMaterial({ color: 0xc084fc, emissive: 0x7e22ce, roughness: 0.1 });
-        const crystal = new THREE.Mesh(crystalGeo, crystalMat);
-        crystal.position.y = 1.8;
-        crystal.castShadow = true;
-        group.add(crystal);
-      }
-      return group;
-    }
-
-    function create3DEnemyMesh(type) {
-      const group = new THREE.Group();
-      if (type === 'goblin') {
-        const bodyGeo = new THREE.SphereGeometry(0.4, 8, 8);
-        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x22c55e });
-        const body = new THREE.Mesh(bodyGeo, bodyMat);
-        body.position.y = 0.4;
-        body.castShadow = true;
-        group.add(body);
-      } else if (type === 'wolf') {
-        const bodyGeo = new THREE.BoxGeometry(0.5, 0.5, 1.0);
-        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8 });
-        const body = new THREE.Mesh(bodyGeo, bodyMat);
-        body.position.y = 0.4;
-        body.castShadow = true;
-        group.add(body);
-      } else if (type === 'golem') {
-        const bodyGeo = new THREE.BoxGeometry(0.9, 1.2, 0.9);
-        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x78716c, roughness: 0.9 });
-        const body = new THREE.Mesh(bodyGeo, bodyMat);
-        body.position.y = 0.6;
-        body.castShadow = true;
-        group.add(body);
-      }
-      return group;
-    }
-
-    // --- 5. 事件監聽與 UI 邏輯 ---
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    window.addEventListener('mousemove', (e) => {
-      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(gridMeshes);
-
-      if (intersects.length > 0) {
-        const hit = intersects[0].object;
-        hoverMesh.position.set(hit.position.x, 0.85, hit.position.z);
-        hoverMesh.visible = true;
-      } else {
-        hoverMesh.visible = false;
-      }
-    });
-
-    window.addEventListener('click', (e) => {
-      if (e.target.tagName === 'BUTTON' || e.target.closest('.ui-overlay')) return;
-
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(gridMeshes);
-
-      if (intersects.length > 0) {
-        const hit = intersects[0].object;
-        const col = hit.userData.col;
-        const row = hit.userData.row;
-
-        const existing = towers.find(t => t.col === col && t.row === row);
-        if (existing) {
-          selectedPlacedTower = existing;
-          updateUI();
-          return;
-        }
-
-        selectedPlacedTower = null;
-
-        if (!hit.userData.isPath) {
-          const config = TOWER_TYPES[selectedType];
-          if (gold >= config.cost) {
-            gold -= config.cost;
-            const mesh = create3DTowerMesh(selectedType);
-            mesh.position.set(hit.position.x, 0.8, hit.position.z);
-            scene.add(mesh);
-
-            towers.push({
-              col, row,
-              mesh: mesh,
-              type: selectedType,
-              cost: config.cost,
-              range: config.range,
-              rate: config.rate,
-              damage: config.damage,
-              level: 1,
-              cooldown: 0
-            });
-          }
-        }
-        updateUI();
-      }
-    });
-
-    // UI 按鈕監聽
-    document.querySelectorAll('.tower-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tower-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        selectedType = btn.dataset.type;
-        selectedPlacedTower = null;
-        updateUI();
-      });
-    });
-
-    const startWaveBtn = document.getElementById('start-wave-btn');
-    startWaveBtn.addEventListener('click', () => {
-      if (waveInProgress) return;
-      wave++;
-      waveInProgress = true;
-      enemiesToSpawn = 6 + wave * 3;
-      spawnTimer = 0;
-      startWaveBtn.disabled = true;
-      updateUI();
-    });
-
-    document.getElementById('btn-upgrade').addEventListener('click', () => {
-      if (!selectedPlacedTower) return;
-      const upgradeCost = Math.floor(selectedPlacedTower.cost * 0.8);
-      if (gold >= upgradeCost) {
-        gold -= upgradeCost;
-        selectedPlacedTower.level++;
-        selectedPlacedTower.damage = Math.floor(selectedPlacedTower.damage * 1.45);
-        selectedPlacedTower.range += 0.8;
-        selectedPlacedTower.cost += upgradeCost;
-        selectedPlacedTower.mesh.scale.multiplyScalar(1.1); // 升級模型稍微放大
-        updateUI();
-      }
-    });
-
-    document.getElementById('btn-sell').addEventListener('click', () => {
-      if (!selectedPlacedTower) return;
-      gold += Math.floor(selectedPlacedTower.cost * 0.6);
-      scene.remove(selectedPlacedTower.mesh);
-      towers = towers.filter(t => t !== selectedPlacedTower);
-      selectedPlacedTower = null;
-      updateUI();
-    });
-
-    function updateUI() {
-      document.getElementById('gold-val').innerText = gold;
-      document.getElementById('lives-val').innerText = lives;
-      document.getElementById('wave-val').innerText = wave;
-      document.getElementById('enemy-val').innerText = enemies.length + enemiesToSpawn;
-
-      const mgmtPanel = document.getElementById('tower-mgmt');
-      if (selectedPlacedTower) {
-        mgmtPanel.classList.add('active');
-        const upgradeCost = Math.floor(selectedPlacedTower.cost * 0.8);
-        const sellVal = Math.floor(selectedPlacedTower.cost * 0.6);
-        document.getElementById('mgmt-info').innerHTML = `
-          <b>${TOWER_TYPES[selectedPlacedTower.type].name} (Lv.${selectedPlacedTower.level})</b><br>
-          攻擊力: ${selectedPlacedTower.damage}<br>
-          射程: ${selectedPlacedTower.range.toFixed(1)}
-        `;
-        document.getElementById('btn-upgrade').innerText = `升級 ($${upgradeCost})`;
-        document.getElementById('btn-upgrade').disabled = gold < upgradeCost;
-        document.getElementById('btn-sell').innerText = `出售 (+$${sellVal})`;
-      } else {
-        mgmtPanel.classList.remove('active');
-      }
-    }
-
-    // --- 6. 遊戲邏輯與 3D 渲染主迴圈 ---
-    function spawnEnemy() {
-      const typeRand = Math.random();
-      let type = 'goblin';
-      let hpMult = 1;
-      let speed = 0.05;
-
-      if (wave > 2 && typeRand > 0.5) { type = 'wolf'; speed = 0.08; hpMult = 1.2; }
-      else if (wave > 4 && typeRand > 0.8) { type = 'golem'; speed = 0.03; hpMult = 3.2; }
-
-      const maxHp = Math.floor(45 * Math.pow(1.26, wave - 1) * hpMult);
-      const mesh = create3DEnemyMesh(type);
-      mesh.position.copy(waypoints[0]);
-      scene.add(mesh);
-
-      enemies.push({
-        mesh: mesh,
-        targetIdx: 1,
-        type: type,
-        hp: maxHp,
-        maxHp: maxHp,
-        speed: speed,
-        currentSpeed: speed,
-        slowTimer: 0,
-        reward: 12 + Math.floor(wave * 1.5)
-      });
-    }
-
-    function createExplosionEffect(pos, colorHex) {
-      for (let i = 0; i < 8; i++) {
-        const pGeo = new THREE.SphereGeometry(0.1, 4, 4);
-        const pMat = new THREE.MeshBasicMaterial({ color: colorHex });
-        const pMesh = new THREE.Mesh(pGeo, pMat);
-        pMesh.position.copy(pos);
-        scene.add(pMesh);
-
-        particles.push({
-          mesh: pMesh,
-          vel: new THREE.Vector3((Math.random() - 0.5) * 0.2, Math.random() * 0.2, (Math.random() - 0.5) * 0.2),
-          life: 15
-        });
-      }
-    }
-
-    function updateGame() {
-      if (waveInProgress && enemiesToSpawn > 0) {
-        spawnTimer++;
-        if (spawnTimer >= 35) {
-          spawnEnemy();
-          enemiesToSpawn--;
-          spawnTimer = 0;
-        }
-      }
-
-      // 粒子更新
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.mesh.position.add(p.vel);
-        p.life--;
-        if (p.life <= 0) {
-          scene.remove(p.mesh);
-          particles.splice(i, 1);
-        }
-      }
-
-      // 敵人移動
-      for (let i = enemies.length - 1; i >= 0; i--) {
-        const enemy = enemies[i];
-        if (enemy.slowTimer > 0) {
-          enemy.slowTimer--;
-          enemy.currentSpeed = enemy.speed * 0.5;
-        } else {
-          enemy.currentSpeed = enemy.speed;
-        }
-
-        const target = waypoints[enemy.targetIdx];
-        const dir = new THREE.Vector3().subVectors(target, enemy.mesh.position);
-        const dist = dir.length();
-
-        if (dist < enemy.currentSpeed) {
-          enemy.mesh.position.copy(target);
-          enemy.targetIdx++;
-          if (enemy.targetIdx >= waypoints.length) {
-            lives--;
-            scene.remove(enemy.mesh);
-            enemies.splice(i, 1);
-            if (lives <= 0) {
-              alert('💥 城堡淪陷！遊戲結束！成功抵擋 ' + (wave - 1) + ' 波魔物。');
-              location.reload();
-            }
-            continue;
-          }
-        } else {
-          dir.normalize();
-          enemy.mesh.position.addScaledVector(dir, enemy.currentSpeed);
-          enemy.mesh.lookAt(target);
-        }
-      }
-
-      // 防禦塔射擊
-      towers.forEach(tower => {
-        if (tower.cooldown > 0) tower.cooldown--;
-
-        if (tower.cooldown <= 0) {
-          let targetEnemy = null;
-          let maxProgress = -1;
-
-          enemies.forEach(enemy => {
-            const dist = tower.mesh.position.distanceTo(enemy.mesh.position);
-            if (dist <= tower.range) {
-              const progress = enemy.targetIdx * 100 - enemy.mesh.position.distanceTo(waypoints[enemy.targetIdx]);
-              if (progress > maxProgress) {
-                maxProgress = progress;
-                targetEnemy = enemy;
-              }
-            }
-          });
-
-          if (targetEnemy) {
-            tower.mesh.lookAt(targetEnemy.mesh.position.x, tower.mesh.position.y, targetEnemy.mesh.position.z);
-
-            // 建立 3D 子彈
-            const pGeo = new THREE.SphereGeometry(0.15, 6, 6);
-            const pMat = new THREE.MeshBasicMaterial({ color: TOWER_TYPES[tower.type].color });
-            const pMesh = new THREE.Mesh(pGeo, pMat);
-            pMesh.position.copy(tower.mesh.position);
-            pMesh.position.y += 1.2;
-            scene.add(pMesh);
-
-            projectiles.push({
-              mesh: pMesh,
-              target: targetEnemy,
-              targetPos: targetEnemy.mesh.position.clone(),
-              type: tower.type,
-              damage: tower.damage,
-              color: TOWER_TYPES[tower.type].color,
-              speed: 0.4
-            });
-            tower.cooldown = tower.rate;
-          }
-        }
-      });
-
-      // 子彈更新
-      for (let i = projectiles.length - 1; i >= 0; i--) {
-        const p = projectiles[i];
-        if (enemies.includes(p.target)) {
-          p.targetPos.copy(p.target.mesh.position);
-        }
-
-        const dir = new THREE.Vector3().subVectors(p.targetPos, p.mesh.position);
-        const dist = dir.length();
-
-        if (dist < p.speed) {
-          createExplosionEffect(p.targetPos, p.color);
-          if (p.type === 'cannon') {
-            enemies.forEach(e => {
-              if (e.mesh.position.distanceTo(p.targetPos) <= TOWER_TYPES.cannon.splash) {
-                e.hp -= p.damage;
-              }
-            });
-          } else {
-            if (enemies.includes(p.target)) {
-              p.target.hp -= p.damage;
-              if (p.type === 'frost') p.target.slowTimer = 90;
-            }
-          }
-          scene.remove(p.mesh);
-          projectiles.splice(i, 1);
-        } else {
-          dir.normalize();
-          p.mesh.position.addScaledVector(dir, p.speed);
-        }
-      }
-
-      // 擊殺結算
-      for (let i = enemies.length - 1; i >= 0; i--) {
-        if (enemies[i].hp <= 0) {
-          gold += enemies[i].reward;
-          createExplosionEffect(enemies[i].mesh.position, 0xfacc15);
-          scene.remove(enemies[i].mesh);
-          enemies.splice(i, 1);
-        }
-      }
-
-      if (waveInProgress && enemiesToSpawn === 0 && enemies.length === 0) {
-        waveInProgress = false;
-        startWaveBtn.disabled = false;
-        gold += 25 + wave * 5;
-      }
-
-      updateUI();
-    }
-
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      updateGame();
-      renderer.render(scene, camera);
-    }
-
-    animate();
-  </script>
+    </script>
 </body>
 </html>
