@@ -1,800 +1,971 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>奶龍保衛戰 3D</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-    body, html {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #090a10;
-      color: #f1f5f9;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: none;
-    }
-    #canvas-container {
-      width: 100vw;
-      height: 100vh;
-      display: block;
-      touch-action: none;
-    }
-    .ui-overlay {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      width: min(300px, 90vw);
-      background: rgba(15, 23, 42, 0.88);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 16px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-      z-index: 100;
-      max-height: calc(100vh - 24px);
-      overflow-y: auto;
-    }
-    h1 {
-      margin: 0;
-      font-size: 18px;
-      color: #facc15;
-      text-shadow: 0 0 10px rgba(250, 204, 21, 0.4);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      background: rgba(0,0,0,0.4);
-      padding: 8px;
-      border-radius: 10px;
-    }
-    .stat-card {
-      font-size: 11px;
-      color: #94a3b8;
-    }
-    .stat-val {
-      font-size: 16px;
-      font-weight: bold;
-      color: #facc15;
-    }
-    .stat-val.hp { color: #f43f5e; }
-    .stat-val.enemy { color: #c084fc; }
-
-    .section-title {
-      font-size: 11px;
-      font-weight: bold;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .tower-select {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .tower-btn {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 12px;
-      min-height: 44px;
-      background: rgba(30, 41, 59, 0.8);
-      border: 2px solid transparent;
-      border-radius: 10px;
-      color: #fff;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .tower-btn:active {
-      transform: scale(0.98);
-    }
-    .tower-btn.active {
-      border-color: #facc15;
-      background: rgba(133, 77, 14, 0.7);
-    }
-    .tower-name { font-size: 13px; font-weight: bold; }
-    .tower-cost { font-size: 12px; color: #facc15; font-weight: bold; }
-
-    .action-btn {
-      width: 100%;
-      padding: 12px;
-      min-height: 46px;
-      font-size: 14px;
-      font-weight: bold;
-      border: none;
-      border-radius: 10px;
-      background: #facc15;
-      color: #0f172a;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 4px 12px rgba(250, 204, 21, 0.3);
-    }
-    .action-btn:active:not(:disabled) {
-      transform: scale(0.97);
-    }
-    .action-btn:disabled {
-      background: #475569;
-      color: #94a3b8;
-      box-shadow: none;
-      cursor: not-allowed;
-    }
-    .mgmt-box {
-      background: rgba(0,0,0,0.5);
-      padding: 10px;
-      border-radius: 10px;
-      display: none;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .mgmt-box.active { display: flex; }
-    .btn-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-    }
-    .btn-up {
-      background: #facc15;
-      color: #000;
-      font-weight: bold;
-      padding: 8px;
-      min-height: 40px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .btn-sell {
-      background: #ef4444;
-      color: #fff;
-      font-weight: bold;
-      padding: 8px;
-      min-height: 40px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .controls-hint {
-      position: absolute;
-      bottom: 12px;
-      left: 12px;
-      font-size: 11px;
-      color: #94a3b8;
-      background: rgba(0,0,0,0.65);
-      backdrop-filter: blur(4px);
-      padding: 6px 12px;
-      border-radius: 20px;
-      pointer-events: none;
-      z-index: 100;
-    }
-  </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>奶龍保衛戰 2D</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#18351f;font-family:system-ui,"Microsoft JhengHei",sans-serif;color:#fff}
+#wrap{position:relative;width:100vw;height:100dvh;overflow:hidden;background:#75bd59}
+canvas{display:block;width:100%;height:100%;touch-action:manipulation}
+.top{position:absolute;top:10px;left:29%;right:12px;display:flex;gap:7px;align-items:center;z-index:3;max-width:69%;flex-wrap:nowrap;justify-content:flex-start;pointer-events:none}
+.pill{background:linear-gradient(#304b5b,#172b3a);border:2px solid #7694a0;border-radius:8px;padding:8px 11px;font-size:clamp(10px,1.55vw,16px);font-weight:1000;white-space:nowrap;box-shadow:0 3px 0 #13202b;text-shadow:0 1px 2px #0008;flex:0 0 auto}
+.brand{position:absolute;left:12px;top:12px;z-index:3;color:#fff7d8;background:linear-gradient(#3e6c3b,#244c32);border:3px solid #a5cf77;border-radius:12px;padding:8px 12px;font-size:clamp(15px,2.4vw,24px);font-weight:1000;text-shadow:2px 2px #23452a;box-shadow:0 3px 0 #79451f;transform:rotate(-1deg)}
+#start{position:absolute;right:12px;bottom:112px;z-index:4;border:3px solid #fff0a2;border-radius:12px;background:linear-gradient(#ffe86a,#ffb52f);color:#633913;font-weight:1000;font-size:clamp(12px,1.8vw,16px);padding:10px 13px;box-shadow:0 4px 0 #a55b20}
+#status{position:absolute;top:62px;left:50%;transform:translateX(-50%);z-index:3;background:#20384cdd;border:1px solid #ffffff55;border-radius:9px;padding:6px 10px;font-size:12px;font-weight:800;text-align:center;max-width:90%;white-space:nowrap}
+.shop{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);z-index:4;display:flex;gap:7px;padding:7px;background:#172b3bef;border:3px solid #7b9ca7;border-radius:13px;box-shadow:0 4px 0 #12202a;max-width:98vw}
+.tower{width:clamp(68px,10.5vw,104px);height:100px;border:2px solid #839da4;border-radius:9px;background:linear-gradient(#253e50,#172a39);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:5px 2px;font-weight:900;cursor:pointer;box-shadow:inset 0 0 0 2px #0e1c28}
+.tower.active{border:3px solid #ffe45b;background:linear-gradient(#726b38,#344538);transform:translateY(-3px)}
+.tower .emoji{font-size:clamp(27px,4vw,39px);line-height:1.1;filter:drop-shadow(0 2px 1px #0007)}
+.tower .en{font-size:clamp(9px,1.25vw,12px);white-space:nowrap}
+.tower .cost{font-size:11px;color:#ffe15b}
+#manage{display:none;position:absolute;right:10px;top:100px;z-index:4;background:#1e3549ee;border:2px solid #7d9caf;border-radius:10px;padding:8px;font-size:12px;min-width:130px}
+#manage button{border:0;border-radius:6px;padding:6px;font-weight:900;margin:5px 2px 0}
+#up{background:#ffe15b}
+#sell{background:#f16d61;color:#fff}
+@media(max-width:700px){
+ .brand{top:7px;left:7px}
+ .top{top:48px;left:8px;right:8px;max-width:none;justify-content:center;gap:4px}
+ .pill{padding:5px 7px}
+ .healthpill{display:none}
+ #status{top:86px;font-size:11px}
+ #start{bottom:116px;right:7px;padding:8px}
+ .shop{gap:3px;padding:4px;bottom:5px}
+ .tower{height:78px;width:clamp(50px,16vw,78px)}
+ .tower .en{font-size:8px}
+ .tower .cost{font-size:9px}
+ #manage{top:112px}
+}
+</style>
 </head>
 <body>
+<div id="wrap">
+<canvas id="game"></canvas>
 
-  <div id="canvas-container"></div>
+<div class="brand">🐲 奶龍保衛戰</div>
 
-  <div class="ui-overlay">
-    <h1>🐲 奶龍保衛戰 (3D)</h1>
+<div class="top">
+ <div class="pill" id="wave">Wave: 0/20</div>
+ <div class="pill healthpill">Health: <span id="hp">100</span>/100</div>
+ <div class="pill">❤️ <span id="lives">15</span></div>
+ <div class="pill">🪙 <span id="gold">500</span></div>
+ <div class="pill">🐲 <span id="count">0</span></div>
+</div>
 
-    <div class="stats-grid">
-      <div class="stat-card">金幣: <div class="stat-val" id="gold-val">160</div></div>
-      <div class="stat-card">城堡生命: <div class="stat-val hp" id="lives-val">15</div></div>
-      <div class="stat-card">進攻波次: <div class="stat-val" id="wave-val">0</div></div>
-      <div class="stat-card">剩餘奶龍: <div class="stat-val enemy" id="enemy-val">0</div></div>
-    </div>
+<div id="status">先按「開始進攻」，再選擇防禦塔放在草地上！</div>
+<button id="start">⚔️ 開始第 1 波</button>
 
-    <div>
-      <div class="section-title">選擇防禦塔</div>
-      <div class="tower-select">
-        <div class="tower-btn active" data-type="arrow">
-          <span class="tower-name">🏹 奶龍彈珠台</span>
-          <span class="tower-cost">$50</span>
-        </div>
-        <div class="tower-btn" data-type="cannon">
-          <span class="tower-name">💣 重型扭蛋機</span>
-          <span class="tower-cost">$100</span>
-        </div>
-        <div class="tower-btn" data-type="frost">
-          <span class="tower-name">❄️ 冰淇淋法塔</span>
-          <span class="tower-cost">$75</span>
-        </div>
-      </div>
-    </div>
+<div id="manage">
+ <div id="info">防禦塔</div>
+ <button id="up">升級</button>
+ <button id="sell">出售</button>
+</div>
 
-    <div id="tower-mgmt" class="mgmt-box">
-      <div class="section-title">防禦塔控制</div>
-      <div id="mgmt-info" style="font-size:12px; color:#cbd5e1;">等級: 1</div>
-      <div class="btn-group">
-        <button id="btn-upgrade" class="btn-up">升級</button>
-        <button id="btn-sell" class="btn-sell">出售</button>
-      </div>
-    </div>
+<div class="shop">
+ <button class="tower active" data-type="archer">
+  <span class="en">Archer</span>
+  <span class="emoji">🏹</span>
+  <span class="en">弓箭手 Lv1</span>
+  <span class="cost">🪙50</span>
+ </button>
+ <button class="tower" data-type="sniper">
+  <span class="en">Sniper</span>
+  <span class="emoji">🎯</span>
+  <span class="en">狙擊手 Lv1</span>
+  <span class="cost">🪙90</span>
+ </button>
+ <button class="tower" data-type="cannon">
+  <span class="en">Cannon</span>
+  <span class="emoji">💣</span>
+  <span class="en">加農砲 Lv1</span>
+  <span class="cost">🪙120</span>
+ </button>
+ <button class="tower" data-type="laser">
+  <span class="en">Laser Beam</span>
+  <span class="emoji">💎</span>
+  <span class="en">雷射光束</span>
+  <span class="cost">🔒 Lv3</span>
+ </button>
+ <button class="tower" data-type="totem">
+  <span class="en">Buff Totem</span>
+  <span class="emoji">🗿</span>
+  <span class="en">增益圖騰</span>
+  <span class="cost">🔒 Lv4</span>
+ </button>
+ <button class="tower" data-type="freeze">
+  <span class="en">Freeze</span>
+  <span class="emoji">❄️</span>
+  <span class="en">冰凍塔</span>
+  <span class="cost">🔒 Lv5</span>
+ </button>
+</div>
+</div>
 
-    <button id="start-wave-btn" class="action-btn">⚔️ 開始奶龍進攻</button>
-  </div>
+<script>
+(()=>{
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+const wrap=document.getElementById('wrap');
+const $=id=>document.getElementById(id);
 
-  <div class="controls-hint">💡 觸控提示：單指滑動旋轉視角 | 點一下草地直接放置防禦塔</div>
+let W=0,H=0,dpr=1,scale=1,ox=0,oy=0;
 
-  <script>
-    const COLS = 16;
-    const ROWS = 10;
-    const TILE_SIZE = 2;
+function resize(){
+ W=wrap.clientWidth;
+ H=wrap.clientHeight;
+ dpr=Math.min(devicePixelRatio||1,2);
+ canvas.width=W*dpr;
+ canvas.height=H*dpr;
+ canvas.style.width=W+'px';
+ canvas.style.height=H+'px';
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+ layout();
+}
 
-    let gold = 160;
-    let lives = 15;
-    let wave = 0;
-    let waveInProgress = false;
-    let enemiesToSpawn = 0;
-    let spawnTimer = 0;
+const pathN=[
+ [-.49,-.27],[-.34,-.27],[-.34,.22],
+ [.02,.22],[.02,-.20],[.31,-.20],
+ [.31,.08],[.48,.08]
+];
 
-    let enemies = [];
-    let towers = [];
-    let projectiles = [];
-    let particles = [];
+let path=[],tiles=[],selected='archer',chosen=null;
+let gold=500,lives=15,health=100,wave=0;
+let active=false,spawnLeft=0,spawnTimer=0,frame=0;
+let enemies=[],towers=[],shots=[],particles=[];
+let fast=false,gameOver=false;
 
-    let selectedType = 'arrow';
-    let selectedPlacedTower = null;
+const cfg={
+ archer:{
+  name:'弓箭手',cost:50,range:130,
+  rate:25,damage:16,color:'#9cf06b',emoji:'🏹'
+ },
+ sniper:{
+  name:'狙擊手',cost:90,range:205,
+  rate:58,damage:48,color:'#ffcf69',emoji:'🎯'
+ },
+ cannon:{
+  name:'加農砲',cost:120,range:155,
+  rate:40,damage:34,color:'#ff9e55',emoji:'💣'
+ },
+ laser:{
+  name:'雷射光束',cost:180,range:180,
+  rate:30,damage:28,color:'#ff56f1',emoji:'💎',locked:3
+ },
+ totem:{
+  name:'增益圖騰',cost:160,range:145,
+  rate:40,damage:18,color:'#bf9aff',emoji:'🗿',locked:4
+ },
+ freeze:{
+  name:'冰凍塔',cost:150,range:130,
+  rate:38,damage:14,color:'#71e4ff',emoji:'❄️',slow:true,locked:5
+ }
+};
 
-    const gridPath = [
-      {x: 0, y: 2}, {x: 4, y: 2}, {x: 4, y: 7},
-      {x: 11, y: 7}, {x: 11, y: 3}, {x: 15, y: 3}
-    ];
+function layout(){
+ const topSpace=innerWidth<700?130:86;
+ const bottomSpace=innerWidth<700?100:120;
+ scale=Math.min(
+  (W-30)/900,
+  (H-topSpace-bottomSpace)/520
+ );
+ scale=Math.max(.45,scale);
+ ox=W/2;
+ oy=topSpace+(H-topSpace-bottomSpace)/2;
+ path=pathN.map(([x,y])=>({
+  x:ox+x*800*scale,
+  y:oy+y*450*scale
+ }));
+}
 
-    const waypoints = gridPath.map(pt => new THREE.Vector3(
-      (pt.x - COLS / 2 + 0.5) * TILE_SIZE,
-      0.5,
-      (pt.y - ROWS / 2 + 0.5) * TILE_SIZE
-    ));
+function rr(x,y,w,h,r,fill,stroke){
+ ctx.beginPath();
+ ctx.roundRect(x,y,w,h,r);
+ if(fill){
+  ctx.fillStyle=fill;
+  ctx.fill();
+ }
+ if(stroke){
+  ctx.strokeStyle=stroke;
+  ctx.lineWidth=2;
+  ctx.stroke();
+ }
+}
 
-    function isPathTile(col, row) {
-      for (let i = 0; i < gridPath.length - 1; i++) {
-        const p1 = gridPath[i];
-        const p2 = gridPath[i+1];
-        const minX = Math.min(p1.x, p2.x);
-        const maxX = Math.max(p1.x, p2.x);
-        const minY = Math.min(p1.y, p2.y);
-        const maxY = Math.max(p1.y, p2.y);
-        if (col >= minX && col <= maxX && row >= minY && row <= maxY) return true;
-      }
-      return false;
+function linePath(width,color){
+ ctx.beginPath();
+ ctx.moveTo(path[0].x,path[0].y);
+ for(let p of path.slice(1))ctx.lineTo(p.x,p.y);
+ ctx.lineJoin='round';
+ ctx.lineCap='round';
+ ctx.lineWidth=width;
+ ctx.strokeStyle=color;
+ ctx.stroke();
+}
+
+function distPointSeg(p,a,b){
+ let dx=b.x-a.x,dy=b.y-a.y;
+ let t=((p.x-a.x)*dx+(p.y-a.y)*dy)/(dx*dx+dy*dy);
+ t=Math.max(0,Math.min(1,t));
+ return Math.hypot(
+  p.x-(a.x+t*dx),
+  p.y-(a.y+t*dy)
+ );
+}
+
+function onPath(x,y){
+ for(let i=0;i<path.length-1;i++){
+  if(distPointSeg({x,y},path[i],path[i+1])<35*scale)return true;
+ }
+ return false;
+}
+
+function drawBackground(){
+ ctx.fillStyle='#6fba58';
+ ctx.fillRect(0,0,W,H);
+
+ // 草地紋理
+ for(let i=0;i<70;i++){
+  let x=(i*173+17)%W;
+  let y=(i*113+27)%H;
+  ctx.fillStyle=['#5ca94c','#86c96a','#438b45'][i%3];
+  ctx.globalAlpha=.42;
+  ctx.beginPath();
+  ctx.ellipse(x,y,18*scale,9*scale,(i%7)*.3,0,Math.PI*2);
+  ctx.fill();
+  ctx.globalAlpha=1;
+ }
+
+ // 草地斑點
+ for(let i=0;i<95;i++){
+  let x=(i*137.5+30)%W;
+  let y=(i*89.7+95)%Math.max(H-120,1);
+  ctx.fillStyle=i%3?'#65b64f':'#8bcf69';
+  ctx.beginPath();
+  ctx.ellipse(x,y,9*scale,4*scale,i%5,0,Math.PI*2);
+  ctx.fill();
+ }
+
+ // 森林邊緣
+ for(let i=0;i<Math.ceil(W/38);i++){
+  let x=i*38+10;
+  tree(x,Math.max(90,oy-250*scale));
+  tree(x,H-105);
+ }
+ for(let i=0;i<8;i++){
+  tree(10,oy-210*scale+i*48*scale);
+  tree(W-10,oy-190*scale+i*48*scale);
+ }
+
+ // 彎曲道路
+ linePath(76*scale,'#9b704b');
+ linePath(66*scale,'#d5b17a');
+ linePath(2*scale,'#e7c895');
+
+ // 道路小石子
+ for(let i=0;i<60;i++){
+  let p=pointAt((i/60)*pathLength());
+  ctx.fillStyle=i%2?'#c59c69':'#e2c18b';
+  ctx.beginPath();
+  ctx.ellipse(
+   p.x+Math.sin(i*8)*8*scale,
+   p.y+Math.cos(i*3)*10*scale,
+   2*scale,1.3*scale,.5,0,Math.PI*2
+  );
+  ctx.fill();
+ }
+
+ drawPortal(path[0].x-12*scale,path[0].y);
+ drawCastle(
+  path[path.length-1].x+22*scale,
+  path[path.length-1].y+15*scale
+ );
+}
+
+function tree(x,y){
+ let s=scale;
+ ctx.fillStyle='#8c6746';
+ ctx.fillRect(x-3*s,y+4*s,6*s,12*s);
+ for(let k=0;k<3;k++){
+  ctx.fillStyle=['#276e3c','#348346','#4a9a4d'][k];
+  ctx.beginPath();
+  ctx.arc(x+(k-1)*7*s,y+(k%2)*-5*s,12*s,0,Math.PI*2);
+  ctx.fill();
+ }
+}
+
+function drawPortal(x,y){
+ let s=scale;
+ ctx.save();
+ ctx.shadowColor='#9c4dff';
+ ctx.shadowBlur=15*s;
+ ctx.fillStyle='#281f4b';
+ ctx.beginPath();
+ ctx.ellipse(x,y,17*s,25*s,-.2,0,Math.PI*2);
+ ctx.fill();
+ ctx.strokeStyle='#c66cff';
+ ctx.lineWidth=5*s;
+ ctx.stroke();
+ ctx.shadowBlur=0;
+ ctx.strokeStyle='#4fc8ff';
+ ctx.lineWidth=3*s;
+ ctx.beginPath();
+ ctx.ellipse(x,y,10*s,18*s,.2,0,Math.PI*2);
+ ctx.stroke();
+ ctx.restore();
+}
+
+function drawCastle(x,y){
+ let s=scale;
+ ctx.save();
+ ctx.fillStyle='#0003';
+ ctx.beginPath();
+ ctx.ellipse(x,y+19*s,38*s,12*s,0,0,Math.PI*2);
+ ctx.fill();
+
+ ctx.fillStyle='#a9a9b5';
+ ctx.fillRect(x-29*s,y-20*s,58*s,39*s);
+
+ ctx.fillStyle='#d6d6dc';
+ ctx.fillRect(x-37*s,y-32*s,16*s,51*s);
+ ctx.fillRect(x+21*s,y-32*s,16*s,51*s);
+ ctx.fillRect(x-15*s,y-28*s,30*s,47*s);
+
+ ctx.fillStyle='#6e6b83';
+ for(let xx of [-29,0,29]){
+  ctx.beginPath();
+  ctx.moveTo(x+(xx-10)*s,y-30*s);
+  ctx.lineTo(x+xx*s,y-48*s);
+  ctx.lineTo(x+(xx+10)*s,y-30*s);
+  ctx.fill();
+ }
+
+ ctx.fillStyle='#54485b';
+ ctx.fillRect(x-8*s,y+1*s,16*s,18*s);
+
+ ctx.fillStyle='#f9e6aa';
+ ctx.font=`bold ${11*s}px sans-serif`;
+ ctx.textAlign='center';
+ ctx.fillText('BASE',x,y+34*s);
+ ctx.restore();
+}
+
+function pathLength(){
+ let d=0;
+ for(let i=1;i<path.length;i++){
+  d+=Math.hypot(
+   path[i].x-path[i-1].x,
+   path[i].y-path[i-1].y
+  );
+ }
+ return d;
+}
+
+function pointAt(progress){
+ let total=pathLength();
+ let target=Math.max(0,Math.min(total,progress*total));
+
+ for(let i=1;i<path.length;i++){
+  let a=path[i-1],b=path[i];
+  let d=Math.hypot(b.x-a.x,b.y-a.y);
+
+  if(target<=d){
+   let t=target/d;
+   return{
+    x:a.x+(b.x-a.x)*t,
+    y:a.y+(b.y-a.y)*t
+   };
+  }
+  target-=d;
+ }
+ return path[path.length-1];
+}
+
+function drawTower(t){
+ let x=t.x,y=t.y,s=scale;
+ ctx.save();
+
+ if(chosen===t){
+  ctx.strokeStyle='#b8ff73';
+  ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.arc(x,y,19*s,0,Math.PI*2);
+  ctx.stroke();
+
+  ctx.globalAlpha=.12;
+  ctx.fillStyle='#79f06a';
+  ctx.beginPath();
+  ctx.arc(x,y,t.range,0,Math.PI*2);
+  ctx.fill();
+  ctx.globalAlpha=1;
+ }
+
+ ctx.fillStyle='#0003';
+ ctx.beginPath();
+ ctx.ellipse(x,y+14*s,22*s,8*s,0,0,Math.PI*2);
+ ctx.fill();
+
+ rr(x-20*s,y+4*s,40*s,14*s,4,'#536f58','#293f39');
+
+ if(t.type==='archer'){
+  ctx.fillStyle='#7e593b';
+  ctx.fillRect(x-9*s,y-15*s,18*s,20*s);
+  ctx.fillStyle='#eab86f';
+  ctx.beginPath();
+  ctx.arc(x,y-18*s,9*s,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle='#69472f';
+  ctx.beginPath();
+  ctx.moveTo(x-12*s,y-20*s);
+  ctx.lineTo(x,y-32*s);
+  ctx.lineTo(x+12*s,y-20*s);
+  ctx.fill();
+
+  ctx.strokeStyle='#f2d9a0';
+  ctx.lineWidth=2*s;
+  ctx.beginPath();
+  ctx.arc(x+8*s,y-16*s,10*s,-1.2,1.2);
+  ctx.stroke();
+ }
+ else if(t.type==='sniper'){
+  ctx.fillStyle='#b58a5a';
+  ctx.fillRect(x-11*s,y-15*s,22*s,20*s);
+  ctx.fillStyle='#e9bd8a';
+  ctx.beginPath();
+  ctx.arc(x,y-18*s,8*s,0,Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle='#393e49';
+  ctx.fillRect(x-5*s,y-10*s,27*s,5*s);
+  ctx.fillStyle='#a9c5ce';
+  ctx.fillRect(x+10*s,y-12*s,10*s,2*s);
+ }
+ else if(t.type==='cannon'){
+  ctx.fillStyle='#866d55';
+  ctx.fillRect(x-16*s,y-9*s,32*s,14*s);
+  ctx.fillStyle='#b4a08b';
+  ctx.beginPath();
+  ctx.arc(x,y-11*s,12*s,Math.PI,Math.PI*2);
+  ctx.fill();
+
+  ctx.save();
+  ctx.translate(x,y-13*s);
+  ctx.rotate(-.45);
+  ctx.fillStyle='#3b4e61';
+  ctx.fillRect(-5*s,-17*s,27*s,11*s);
+  ctx.fillStyle='#b9cbd3';
+  ctx.fillRect(14*s,-15*s,7*s,7*s);
+  ctx.restore();
+ }
+ else if(t.type==='laser'){
+  ctx.fillStyle='#8b52bd';
+  ctx.fillRect(x-13*s,y-16*s,26*s,21*s);
+  ctx.fillStyle='#e4baff';
+  ctx.beginPath();
+  ctx.moveTo(x,y-37*s);
+  ctx.lineTo(x+12*s,y-19*s);
+  ctx.lineTo(x,y-5*s);
+  ctx.lineTo(x-12*s,y-19*s);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle='#ff9fff';
+  ctx.lineWidth=2*s;
+  ctx.stroke();
+ }
+ else if(t.type==='totem'){
+  ctx.fillStyle='#986e4b';
+  ctx.fillRect(x-12*s,y-22*s,24*s,27*s);
+  ctx.fillStyle='#c9a77a';
+  ctx.fillRect(x-8*s,y-18*s,5*s,5*s);
+  ctx.fillRect(x+3*s,y-18*s,5*s,5*s);
+  ctx.fillStyle='#392c31';
+  ctx.fillRect(x-5*s,y-8*s,10*s,3*s);
+  ctx.fillStyle='#f6ce75';
+  ctx.beginPath();
+  ctx.arc(x,y-28*s,7*s,0,Math.PI*2);
+  ctx.fill();
+ }
+ else{
+  ctx.fillStyle='#8edff2';
+  ctx.beginPath();
+  ctx.moveTo(x,y-35*s);
+  ctx.lineTo(x+13*s,y-13*s);
+  ctx.lineTo(x+8*s,y+4*s);
+  ctx.lineTo(x-8*s,y+4*s);
+  ctx.lineTo(x-13*s,y-13*s);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle='#e4ffff';
+  ctx.lineWidth=2*s;
+  ctx.stroke();
+ }
+
+ if(t.level>1){
+  ctx.fillStyle='#ffe45b';
+  ctx.font=`bold ${10*s}px sans-serif`;
+  ctx.textAlign='center';
+  ctx.fillText('Lv.'+t.level,x,y+29*s);
+ }
+ ctx.restore();
+}
+
+function drawEnemy(e){
+ let x=e.x,y=e.y,s=scale;
+ ctx.save();
+
+ ctx.fillStyle='#0003';
+ ctx.beginPath();
+ ctx.ellipse(x,y+11*s,16*s,6*s,0,0,Math.PI*2);
+ ctx.fill();
+
+ if(e.kind==='orc'){
+  ctx.fillStyle='#6dba56';
+  ctx.fillRect(x-10*s,y-12*s,20*s,24*s);
+  ctx.fillStyle='#8bd36a';
+  ctx.beginPath();
+  ctx.arc(x,y-11*s,11*s,0,Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle='#eee';
+  ctx.fillRect(x-8*s,y-14*s,4*s,3*s);
+  ctx.fillRect(x+4*s,y-14*s,4*s,3*s);
+  ctx.fillStyle='#e8e4cb';
+  ctx.beginPath();
+  ctx.moveTo(x-7*s,y-4*s);
+  ctx.lineTo(x-2*s,y+4*s);
+  ctx.lineTo(x+1*s,y-4*s);
+  ctx.fill();
+ }
+ else if(e.kind==='golem'){
+  ctx.fillStyle='#747b7c';
+  ctx.fillRect(x-13*s,y-15*s,26*s,29*s);
+  ctx.fillStyle='#989f9e';
+  ctx.fillRect(x-10*s,y-21*s,20*s,14*s);
+  ctx.fillStyle='#e7c45c';
+  ctx.fillRect(x-7*s,y-16*s,4*s,3*s);
+  ctx.fillRect(x+3*s,y-16*s,4*s,3*s);
+ }
+ else if(e.kind==='mage'){
+  ctx.fillStyle='#4a8db4';
+  ctx.beginPath();
+  ctx.arc(x,y-9*s,10*s,0,Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle='#e7f5ff';
+  ctx.beginPath();
+  ctx.moveTo(x-12*s,y-14*s);
+  ctx.lineTo(x,y-31*s);
+  ctx.lineTo(x+12*s,y-14*s);
+  ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.fillRect(x-5*s,y-11*s,3*s,3*s);
+  ctx.fillRect(x+3*s,y-11*s,3*s,3*s);
+ }
+ else{
+  ctx.fillStyle=e.big?'#f2a82f':'#ffdc52';
+  ctx.beginPath();
+  ctx.ellipse(x,y,14*s,12*s,0,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle='#fff0a0';
+  ctx.beginPath();
+  ctx.ellipse(x+2*s,y+4*s,8*s,6*s,0,0,Math.PI*2);
+  ctx.fill();
+
+  for(let side of [-1,1]){
+   ctx.fillStyle='#f7b345';
+   ctx.beginPath();
+   ctx.moveTo(x+side*5*s,y-8*s);
+   ctx.lineTo(x+side*10*s,y-18*s);
+   ctx.lineTo(x+side*12*s,y-6*s);
+   ctx.fill();
+
+   ctx.fillStyle='#43332a';
+   ctx.beginPath();
+   ctx.arc(x+side*5*s,y-2*s,1.7*s,0,Math.PI*2);
+   ctx.fill();
+  }
+
+  ctx.strokeStyle='#81502c';
+  ctx.lineWidth=1.4*s;
+  ctx.beginPath();
+  ctx.arc(x+2*s,y+2*s,3*s,.2,1.7);
+  ctx.stroke();
+ }
+
+ let bw=30*s;
+ ctx.fillStyle='#3c3330';
+ ctx.fillRect(x-bw/2,y-28*s,bw,5*s);
+ ctx.fillStyle='#ef514d';
+ ctx.fillRect(x-bw/2,y-28*s,bw,5*s);
+ ctx.fillStyle='#6ee45c';
+ ctx.fillRect(
+  x-bw/2,y-28*s,bw*Math.max(0,e.hp/e.maxHp),5*s
+ );
+ ctx.restore();
+}
+
+function draw(){
+ drawBackground();
+
+ for(let t of towers)drawTower(t);
+ for(let e of enemies)drawEnemy(e);
+
+ for(let s of shots){
+  if(s.type==='laser'){
+   ctx.strokeStyle='#ff8cff';
+   ctx.lineWidth=7*scale;
+   ctx.beginPath();
+   ctx.moveTo(s.x,s.y);
+   ctx.lineTo(s.target.x,s.target.y);
+   ctx.stroke();
+
+   ctx.strokeStyle='#fff3ff';
+   ctx.lineWidth=2*scale;
+   ctx.stroke();
+  }
+  else{
+   ctx.strokeStyle=s.color;
+   ctx.lineWidth=4*scale;
+   ctx.beginPath();
+   ctx.moveTo(s.x,s.y);
+   ctx.lineTo(s.x-5*scale,s.y+5*scale);
+   ctx.stroke();
+
+   ctx.fillStyle=s.color;
+   ctx.beginPath();
+   ctx.arc(s.x,s.y,4*scale,0,Math.PI*2);
+   ctx.fill();
+  }
+ }
+
+ for(let p of particles){
+  ctx.globalAlpha=Math.max(0,p.life/20);
+  ctx.fillStyle=p.color;
+  ctx.beginPath();
+  ctx.arc(p.x,p.y,3*scale,0,Math.PI*2);
+  ctx.fill();
+  ctx.globalAlpha=1;
+ }
+
+ if(!active&&wave===0){
+  ctx.fillStyle='#203b2acc';
+  rr(W/2-130*scale,oy-105*scale,260*scale,35*scale,10,'#203b2acc','#d3e9a4');
+  ctx.fillStyle='#fff6cf';
+  ctx.font=`bold ${Math.max(13,16*scale)}px sans-serif`;
+  ctx.textAlign='center';
+  ctx.fillText('ENEMY SPAWN  •  點擊開始進攻',W/2,oy-83*scale);
+ }
+}
+
+function updateUI(){
+ $('gold').textContent=gold;
+ $('lives').textContent=lives;
+ $('hp').textContent=health;
+ $('wave').textContent=`Wave ${wave}/20`;
+ $('count').textContent=enemies.length;
+
+ $('start').textContent=wave>=20
+  ?'🏆 挑戰完成'
+  :active
+   ?`⚔️ 第 ${wave} 波進行中`
+   :`⚔️ 開始第 ${wave+1} 波`;
+
+ $('start').disabled=active||wave>=20;
+ $('start').style.opacity=$('start').disabled?.65:1;
+
+ if(chosen){
+  $('manage').style.display='block';
+  $('info').innerHTML=
+   `<b>${cfg[chosen.type].name} Lv.${chosen.level}</b><br>`+
+   `攻擊力：${chosen.damage}<br>`+
+   `射程：${Math.round(chosen.range)}`;
+
+  $('up').textContent='升級 🪙'+Math.floor(chosen.cost*.7);
+  $('sell').textContent='出售 +🪙'+Math.floor(chosen.cost*.5);
+ }
+ else{
+  $('manage').style.display='none';
+ }
+}
+
+function say(s){
+ $('status').textContent=s;
+}
+
+function spawn(){
+ let p=pointAt(0);
+ let big=wave>4&&Math.random()<.18;
+ let max=Math.floor((48+wave*10)*Math.pow(1.12,wave-1));
+
+ enemies.push({
+  progress:0,x:p.x,y:p.y,
+  hp:max,maxHp:max,
+  speed:(.0014+wave*.00008)*(fast?2:1),
+  reward:12+Math.floor(wave*1.5),
+  slow:0,big
+ });
+}
+
+function place(x,y){
+ if(y>H-(innerWidth<700?100:120))return;
+
+ let old=towers.find(t=>Math.hypot(t.x-x,t.y-y)<22*scale);
+ if(old){
+  chosen=old;
+  updateUI();
+  return;
+ }
+
+ if(onPath(x,y)){
+  say('道路上不能放防禦塔！');
+  return;
+ }
+
+ let type=cfg[selected];
+
+ if(type.locked&&wave<type.locked){
+  say(type.name+' 需要玩家等級 '+type.locked+' 才能解鎖！');
+  return;
+ }
+
+ if(gold<type.cost){
+  say('金幣不夠！先擊退奶龍賺金幣');
+  return;
+ }
+
+ gold-=type.cost;
+
+ towers.push({
+  x,y,type:selected,level:1,
+  damage:type.damage,
+  range:type.range*scale,
+  rate:type.rate,cooldown:10,cost:type.cost
+ });
+
+ chosen=towers[towers.length-1];
+ updateUI();
+ say(type.name+' 放置成功！');
+}
+
+canvas.addEventListener('pointerdown',e=>{
+ let r=canvas.getBoundingClientRect();
+ place(e.clientX-r.left,e.clientY-r.top);
+});
+
+document.querySelectorAll('.tower').forEach(b=>
+ b.addEventListener('click',()=>{
+  document.querySelectorAll('.tower').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  selected=b.dataset.type;
+  chosen=null;
+  updateUI();
+
+  if(cfg[selected].locked&&wave<cfg[selected].locked){
+   say(cfg[selected].name+' 尚未解鎖！先提升玩家等級');
+  }
+  else{
+   say('已選擇 '+cfg[selected].name+'，點擊草地放置');
+  }
+ })
+);
+
+$('start').addEventListener('click',()=>{
+ if(active||wave>=20)return;
+
+ wave++;
+ active=true;
+ spawnLeft=7+wave*2;
+ spawnTimer=0;
+
+ spawn();
+ spawnLeft--;
+
+ updateUI();
+ say(`第 ${wave} 波奶龍來襲！`);
+});
+
+$('up').addEventListener('click',()=>{
+ if(!chosen)return;
+
+ let cost=Math.floor(chosen.cost*.7);
+ if(gold<cost){
+  say('金幣不夠升級！');
+  return;
+ }
+
+ gold-=cost;
+ chosen.level++;
+ chosen.damage=Math.floor(chosen.damage*1.45);
+ chosen.range+=.7*scale;
+ chosen.cost+=cost;
+ updateUI();
+});
+
+$('sell').addEventListener('click',()=>{
+ if(!chosen)return;
+
+ gold+=Math.floor(chosen.cost*.5);
+ towers=towers.filter(t=>t!==chosen);
+ chosen=null;
+
+ updateUI();
+ say('防禦塔已出售');
+});
+
+function tick(){
+ frame++;
+
+ if(active&&spawnLeft>0&&++spawnTimer>(fast?12:28)){
+  spawn();
+  spawnLeft--;
+  spawnTimer=0;
+ }
+
+ // 奶龍沿道路移動
+ for(let e of enemies){
+  e.progress+=e.speed*(e.slow>0?.5:1);
+  if(e.slow>0)e.slow--;
+
+  let p=pointAt(e.progress);
+  e.x=p.x;
+  e.y=p.y+Math.sin(frame*.12+e.progress*20)*2*scale;
+ }
+
+ // 奶龍抵達城堡
+ for(let i=enemies.length-1;i>=0;i--){
+  if(enemies[i].progress>=.999){
+   enemies.splice(i,1);
+   lives--;
+   health=Math.max(0,health-7);
+
+   if(lives<=0||health<=0){
+    active=false;
+    gameOver=true;
+    say('💥 城堡被奶龍攻陷！請重新整理頁面重新開始');
+   }
+  }
+ }
+
+ // 防禦塔選擇目標並發射子彈
+ for(let t of towers){
+  if(t.cooldown>0)t.cooldown--;
+
+  if(t.cooldown<=0){
+   let target=null,best=-1;
+
+   for(let e of enemies){
+    let d=Math.hypot(e.x-t.x,e.y-t.y);
+
+    if(d<t.range&&e.progress>best){
+     target=e;
+     best=e.progress;
     }
+   }
 
-    const TOWER_TYPES = {
-      arrow: { name: '奶龍彈珠台', cost: 50, range: 6, rate: 20, damage: 18, color: 0xfacc15 },
-      cannon: { name: '重型扭蛋機', cost: 100, range: 7, rate: 60, damage: 55, splash: 3, color: 0xf43f5e },
-      frost: { name: '冰淇淋法塔', cost: 75, range: 5.5, rate: 35, damage: 12, slow: 0.5, color: 0x38bdf8 }
-    };
-
-    const container = document.getElementById('canvas-container');
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0c16);
-    scene.fog = new THREE.FogExp2(0x0a0c16, 0.02);
-
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 22, 22);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    container.appendChild(renderer.domElement);
-
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
-    controls.maxPolarAngle = Math.PI / 2.15;
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-    scene.add(ambientLight);
-
-    const dirLight = new THREE.DirectionalLight(0xfff5ea, 1.2);
-    dirLight.position.set(15, 25, 15);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 1024;
-    dirLight.shadow.mapSize.height = 1024;
-    dirLight.shadow.camera.near = 0.5;
-    dirLight.shadow.camera.far = 60;
-    const d = 20;
-    dirLight.shadow.camera.left = -d;
-    dirLight.shadow.camera.right = d;
-    dirLight.shadow.camera.top = d;
-    dirLight.shadow.camera.bottom = -d;
-    scene.add(dirLight);
-
-    const gridMeshes = [];
-    const gridGroup = new THREE.Group();
-
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        const isPath = isPathTile(c, r);
-        const geo = new THREE.BoxGeometry(TILE_SIZE - 0.08, isPath ? 0.4 : 0.8, TILE_SIZE - 0.08);
-        const mat = new THREE.MeshStandardMaterial({
-          color: isPath ? 0x64748b : ((c + r) % 2 === 0 ? 0x166534 : 0x14532d),
-          roughness: 0.8
-        });
-        const mesh = new THREE.Mesh(geo, mat);
-        mesh.position.set(
-          (c - COLS / 2 + 0.5) * TILE_SIZE,
-          isPath ? 0.2 : 0.4,
-          (r - ROWS / 2 + 0.5) * TILE_SIZE
-        );
-        mesh.receiveShadow = true;
-        mesh.userData = { col: c, row: r, isPath: isPath };
-        gridGroup.add(mesh);
-        gridMeshes.push(mesh);
-      }
-    }
-    scene.add(gridGroup);
-
-    const hoverGeo = new THREE.BoxGeometry(TILE_SIZE, 0.15, TILE_SIZE);
-    const hoverMat = new THREE.MeshBasicMaterial({ color: 0xfacc15, transparent: true, opacity: 0.7 });
-    const hoverMesh = new THREE.Mesh(hoverGeo, hoverMat);
-    hoverMesh.visible = false;
-    scene.add(hoverMesh);
-
-    function create3DTowerMesh(type) {
-      const group = new THREE.Group();
-      if (type === 'arrow') {
-        const baseGeo = new THREE.CylinderGeometry(0.7, 0.8, 1.8, 8);
-        const baseMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.4 });
-        const base = new THREE.Mesh(baseGeo, baseMat);
-        base.position.y = 0.9;
-        base.castShadow = true;
-        group.add(base);
-
-        const topGeo = new THREE.SphereGeometry(0.5, 8, 8);
-        const topMat = new THREE.MeshStandardMaterial({ color: 0xef4444 });
-        const top = new THREE.Mesh(topGeo, topMat);
-        top.position.y = 2.0;
-        top.castShadow = true;
-        group.add(top);
-      } else if (type === 'cannon') {
-        const baseGeo = new THREE.BoxGeometry(1.4, 0.8, 1.4);
-        const baseMat = new THREE.MeshStandardMaterial({ color: 0xec4899 });
-        const base = new THREE.Mesh(baseGeo, baseMat);
-        base.position.y = 0.4;
-        base.castShadow = true;
-        group.add(base);
-
-        const domeGeo = new THREE.SphereGeometry(0.7, 12, 12, 0, Math.PI * 2, 0, Math.PI / 2);
-        const domeMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.2, transparent: true, opacity: 0.8 });
-        const dome = new THREE.Mesh(domeGeo, domeMat);
-        dome.position.y = 0.8;
-        group.add(dome);
-      } else if (type === 'frost') {
-        const baseGeo = new THREE.CylinderGeometry(0.5, 0.7, 1.2, 6);
-        const baseMat = new THREE.MeshStandardMaterial({ color: 0xfbcfe8 });
-        const base = new THREE.Mesh(baseGeo, baseMat);
-        base.position.y = 0.6;
-        base.castShadow = true;
-        group.add(base);
-
-        const iceGeo = new THREE.ConeGeometry(0.6, 1.2, 4);
-        const iceMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.1 });
-        const ice = new THREE.Mesh(iceGeo, iceMat);
-        ice.position.y = 1.8;
-        ice.castShadow = true;
-        group.add(ice);
-      }
-      return group;
-    }
-
-    // 製作超萌奶龍怪物模型
-    function create3DEnemyMesh(type) {
-      const group = new THREE.Group();
-      
-      // 奶龍肥嘟嘟的黃色圓身體
-      const bodyGeo = new THREE.SphereGeometry(type === 'golem' ? 0.7 : (type === 'wolf' ? 0.5 : 0.45), 12, 12);
-      const bodyMat = new THREE.MeshStandardMaterial({ color: 0xfde047, roughness: 0.5 });
-      const body = new THREE.Mesh(bodyGeo, bodyMat);
-      body.position.y = type === 'golem' ? 0.7 : 0.45;
-      body.castShadow = true;
-      group.add(body);
-
-      // 奶龍肚子 (稍微偏白或淺黃)
-      const bellyGeo = new THREE.SphereGeometry(0.35, 8, 8);
-      const bellyMat = new THREE.MeshStandardMaterial({ color: 0xfef08a });
-      const belly = new THREE.Mesh(bellyGeo, bellyMat);
-      belly.position.set(0, body.position.y - 0.05, 0.25);
-      group.add(belly);
-
-      // 頭上的小角
-      const hornGeo = new THREE.ConeGeometry(0.12, 0.3, 4);
-      const hornMat = new THREE.MeshStandardMaterial({ color: 0xf97316 });
-      const horn = new THREE.Mesh(hornGeo, hornMat);
-      horn.position.set(0, body.position.y + 0.45, 0);
-      group.add(horn);
-
-      if (type === 'wolf') {
-        body.scale.set(1.2, 1, 1.3); // 稍微大一點的進階奶龍
-      } else if (type === 'golem') {
-        body.scale.set(1.5, 1.4, 1.5); // 巨型胖奶龍王
-        horn.scale.set(1.5, 1.5, 1.5);
-      }
-
-      return group;
-    }
-
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-
-    let startX = 0;
-    let startY = 0;
-    let hasMoved = false;
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+   if(target){
+    shots.push({
+     x:t.x,y:t.y-7*scale,
+     target,type:t.type,damage:t.damage,
+     speed:(t.type==='rocket'?5:6)*scale,
+     color:cfg[t.type].color
     });
 
-    function onPointerDown(e) {
-      if (e.target.tagName === 'BUTTON' || e.target.closest('.ui-overlay')) return;
-      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-      startX = clientX;
-      startY = clientY;
-      hasMoved = false;
+    t.cooldown=t.rate;
+   }
+  }
+ }
+
+ // 子彈移動與命中
+ for(let i=shots.length-1;i>=0;i--){
+  let s=shots[i];
+
+  if(!enemies.includes(s.target)){
+   shots.splice(i,1);
+   continue;
+  }
+
+  let dx=s.target.x-s.x;
+  let dy=s.target.y-s.y;
+  let d=Math.hypot(dx,dy);
+
+  if(d<s.speed+5*scale){
+   let target=s.target;
+   target.hp-=s.damage;
+
+   if(s.type==='ice')target.slow=90;
+
+   if(s.type==='rocket'||s.type==='gacha'){
+    for(let e of enemies){
+     if(Math.hypot(e.x-target.x,e.y-target.y)<
+       (s.type==='rocket'?55:38)*scale){
+      e.hp-=s.damage*.3;
+     }
     }
+   }
 
-    function onPointerMove(e) {
-      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-      if (Math.hypot(clientX - startX, clientY - startY) > 12) {
-        hasMoved = true;
-      }
-
-      mouse.x = (clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(clientY / window.innerHeight) * 2 + 1;
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(gridMeshes);
-      if (intersects.length > 0) {
-        const hit = intersects[0].object;
-        hoverMesh.position.set(hit.position.x, hit.userData.isPath ? 0.45 : 0.85, hit.position.z);
-        hoverMesh.visible = true;
-      } else {
-        hoverMesh.visible = false;
-      }
-    }
-
-    function onPointerUp(e) {
-      if (e.target.tagName === 'BUTTON' || e.target.closest('.ui-overlay')) return;
-      if (hasMoved) return;
-
-      const clientX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
-      const clientY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
-      if (clientX === undefined || clientY === undefined) return;
-
-      mouse.x = (clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(clientY / window.innerHeight) * 2 + 1;
-
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(gridMeshes);
-
-      if (intersects.length > 0) {
-        const hit = intersects[0].object;
-        const col = hit.userData.col;
-        const row = hit.userData.row;
-
-        const existing = towers.find(t => t.col === col && t.row === row);
-        if (existing) {
-          selectedPlacedTower = existing;
-          updateUI();
-          return;
-        }
-
-        selectedPlacedTower = null;
-
-        if (!hit.userData.isPath) {
-          const config = TOWER_TYPES[selectedType];
-          if (gold >= config.cost) {
-            gold -= config.cost;
-            const mesh = create3DTowerMesh(selectedType);
-            mesh.position.set(hit.position.x, 0.8, hit.position.z);
-            scene.add(mesh);
-
-            towers.push({
-              col, row,
-              mesh: mesh,
-              type: selectedType,
-              cost: config.cost,
-              range: config.range,
-              rate: config.rate,
-              damage: config.damage,
-              level: 1,
-              cooldown: 0
-            });
-          }
-        }
-        updateUI();
-      }
-    }
-
-    window.addEventListener('pointerdown', onPointerDown);
-    window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('pointerup', onPointerUp);
-
-    document.querySelectorAll('.tower-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tower-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        selectedType = btn.dataset.type;
-        selectedPlacedTower = null;
-        updateUI();
-      });
+   for(let k=0;k<8;k++){
+    particles.push({
+     x:target.x,y:target.y,
+     color:s.color,life:20,
+     vx:(Math.random()-.5)*2,
+     vy:(Math.random()-.5)*2
     });
+   }
 
-    const startWaveBtn = document.getElementById('start-wave-btn');
-    startWaveBtn.addEventListener('click', () => {
-      if (waveInProgress) return;
-      wave++;
-      waveInProgress = true;
-      enemiesToSpawn = 6 + wave * 3;
-      spawnTimer = 0;
-      startWaveBtn.disabled = true;
-      updateUI();
-    });
+   shots.splice(i,1);
+  }
+  else{
+   s.x+=dx/d*s.speed;
+   s.y+=dy/d*s.speed;
+  }
+ }
 
-    document.getElementById('btn-upgrade').addEventListener('click', () => {
-      if (!selectedPlacedTower) return;
-      const upgradeCost = Math.floor(selectedPlacedTower.cost * 0.8);
-      if (gold >= upgradeCost) {
-        gold -= upgradeCost;
-        selectedPlacedTower.level++;
-        selectedPlacedTower.damage = Math.floor(selectedPlacedTower.damage * 1.45);
-        selectedPlacedTower.range += 0.8;
-        selectedPlacedTower.cost += upgradeCost;
-        selectedPlacedTower.mesh.scale.multiplyScalar(1.1);
-        updateUI();
-      }
-    });
+ // 消滅奶龍並獲得金幣
+ for(let i=enemies.length-1;i>=0;i--){
+  if(enemies[i].hp<=0){
+   gold+=enemies[i].reward;
+   enemies.splice(i,1);
+  }
+ }
 
-    document.getElementById('btn-sell').addEventListener('click', () => {
-      if (!selectedPlacedTower) return;
-      gold += Math.floor(selectedPlacedTower.cost * 0.6);
-      scene.remove(selectedPlacedTower.mesh);
-      towers = towers.filter(t => t !== selectedPlacedTower);
-      selectedPlacedTower = null;
-      updateUI();
-    });
+ // 更新粒子特效
+ for(let i=particles.length-1;i>=0;i--){
+  let p=particles[i];
+  p.x+=p.vx*scale;
+  p.y+=p.vy*scale;
+  p.life--;
 
-    function updateUI() {
-      document.getElementById('gold-val').innerText = gold;
-      document.getElementById('lives-val').innerText = lives;
-      document.getElementById('wave-val').innerText = wave;
-      document.getElementById('enemy-val').innerText = enemies.length + enemiesToSpawn;
+  if(p.life<=0)particles.splice(i,1);
+ }
 
-      const mgmtPanel = document.getElementById('tower-mgmt');
-      if (selectedPlacedTower) {
-        mgmtPanel.classList.add('active');
-        const upgradeCost = Math.floor(selectedPlacedTower.cost * 0.8);
-        const sellVal = Math.floor(selectedPlacedTower.cost * 0.6);
-        document.getElementById('mgmt-info').innerHTML = `
-          <b>${TOWER_TYPES[selectedPlacedTower.type].name} (Lv.${selectedPlacedTower.level})</b><br>
-          攻擊力: ${selectedPlacedTower.damage}<br>
-          射程: ${selectedPlacedTower.range.toFixed(1)}
-        `;
-        document.getElementById('btn-upgrade').innerText = `升級 ($${upgradeCost})`;
-        document.getElementById('btn-upgrade').disabled = gold < upgradeCost;
-        document.getElementById('btn-sell').innerText = `出售 (+$${sellVal})`;
-      } else {
-        mgmtPanel.classList.remove('active');
-      }
-    }
+ // 波次結束
+ if(active&&spawnLeft===0&&enemies.length===0){
+  active=false;
+  gold+=35+wave*8;
 
-    function spawnEnemy() {
-      const typeRand = Math.random();
-      let type = 'goblin';
-      let hpMult = 1;
-      let speed = 0.05;
+  if(wave>=20){
+   say('🎉 恭喜！成功守住 20 波奶龍大軍！');
+  }
+  else{
+   say(`第 ${wave} 波成功！獲得獎勵，準備下一波`);
+  }
+ }
 
-      if (wave > 2 && typeRand > 0.5) { type = 'wolf'; speed = 0.07; hpMult = 1.3; }
-      else if (wave > 4 && typeRand > 0.85) { type = 'golem'; speed = 0.03; hpMult = 3.5; }
+ updateUI();
+}
 
-      const maxHp = Math.floor(50 * Math.pow(1.25, wave - 1) * hpMult);
-      const mesh = create3DEnemyMesh(type);
-      mesh.position.copy(waypoints[0]);
-      scene.add(mesh);
+function loop(){
+ tick();
+ draw();
+ requestAnimationFrame(loop);
+}
 
-      enemies.push({
-        mesh: mesh,
-        targetIdx: 1,
-        type: type,
-        hp: maxHp,
-        maxHp: maxHp,
-        speed: speed,
-        currentSpeed: speed,
-        slowTimer: 0,
-        reward: 12 + Math.floor(wave * 1.5)
-      });
-    }
+window.addEventListener('resize',resize);
+resize();
+updateUI();
+loop();
 
-    function createExplosionEffect(pos, colorHex) {
-      for (let i = 0; i < 8; i++) {
-        const pGeo = new THREE.SphereGeometry(0.1, 4, 4);
-        const pMat = new THREE.MeshBasicMaterial({ color: colorHex });
-        const pMesh = new THREE.Mesh(pGeo, pMat);
-        pMesh.position.copy(pos);
-        scene.add(pMesh);
-
-        particles.push({
-          mesh: pMesh,
-          vel: new THREE.Vector3((Math.random() - 0.5) * 0.2, Math.random() * 0.2, (Math.random() - 0.5) * 0.2),
-          life: 15
-        });
-      }
-    }
-
-    function updateGame() {
-      if (waveInProgress && enemiesToSpawn > 0) {
-        spawnTimer++;
-        if (spawnTimer >= 35) {
-          spawnEnemy();
-          enemiesToSpawn--;
-          spawnTimer = 0;
-        }
-      }
-
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.mesh.position.add(p.vel);
-        p.life--;
-        if (p.life <= 0) {
-          scene.remove(p.mesh);
-          particles.splice(i, 1);
-        }
-      }
-
-      for (let i = enemies.length - 1; i >= 0; i--) {
-        const enemy = enemies[i];
-        if (enemy.slowTimer > 0) {
-          enemy.slowTimer--;
-          enemy.currentSpeed = enemy.speed * 0.5;
-        } else {
-          enemy.currentSpeed = enemy.speed;
-        }
-
-        const target = waypoints[enemy.targetIdx];
-        const dir = new THREE.Vector3().subVectors(target, enemy.mesh.position);
-        const dist = dir.length();
-
-        if (dist < enemy.currentSpeed) {
-          enemy.mesh.position.copy(target);
-          enemy.targetIdx++;
-          if (enemy.targetIdx >= waypoints.length) {
-            lives--;
-            scene.remove(enemy.mesh);
-            enemies.splice(i, 1);
-            if (lives <= 0) {
-              alert('💥 城堡被奶龍大軍攻陷了！遊戲結束！成功抵擋 ' + (wave - 1) + ' 波進攻。');
-              location.reload();
-            }
-            continue;
-          }
-        } else {
-          dir.normalize();
-          enemy.mesh.position.addScaledVector(dir, enemy.currentSpeed);
-          enemy.mesh.lookAt(target);
-        }
-      }
-
-      towers.forEach(tower => {
-        if (tower.cooldown > 0) tower.cooldown--;
-
-        if (tower.cooldown <= 0) {
-          let targetEnemy = null;
-          let maxProgress = -1;
-
-          enemies.forEach(enemy => {
-            const dist = tower.mesh.position.distanceTo(enemy.mesh.position);
-            if (dist <= tower.range) {
-              const progress = enemy.targetIdx * 100 - enemy.mesh.position.distanceTo(waypoints[enemy.targetIdx]);
-              if (progress > maxProgress) {
-                maxProgress = progress;
-                targetEnemy = enemy;
-              }
-            }
-          });
-
-          if (targetEnemy) {
-            tower.mesh.lookAt(targetEnemy.mesh.position.x, tower.mesh.position.y, targetEnemy.mesh.position.z);
-
-            const pGeo = new THREE.SphereGeometry(0.15, 6, 6);
-            const pMat = new THREE.MeshBasicMaterial({ color: TOWER_TYPES[tower.type].color });
-            const pMesh = new THREE.Mesh(pGeo, pMat);
-            pMesh.position.copy(tower.mesh.position);
-            pMesh.position.y += 1.2;
-            scene.add(pMesh);
-
-            projectiles.push({
-              mesh: pMesh,
-              target: targetEnemy,
-              targetPos: targetEnemy.mesh.position.clone(),
-              type: tower.type,
-              damage: tower.damage,
-              color: TOWER_TYPES[tower.type].color,
-              speed: 0.4
-            });
-            tower.cooldown = tower.rate;
-          }
-        }
-      });
-
-      for (let i = projectiles.length - 1; i >= 0; i--) {
-        const p = projectiles[i];
-        if (enemies.includes(p.target)) {
-          p.targetPos.copy(p.target.mesh.position);
-        }
-
-        const dir = new THREE.Vector3().subVectors(p.targetPos, p.mesh.position);
-        const dist = dir.length();
-
-        if (dist < p.speed) {
-          createExplosionEffect(p.targetPos, p.color);
-          if (p.type === 'cannon') {
-            enemies.forEach(e => {
-              if (e.mesh.position.distanceTo(p.targetPos) <= TOWER_TYPES.cannon.splash) {
-                e.hp -= p.damage;
-              }
-            });
-          } else {
-            if (enemies.includes(p.target)) {
-              p.target.hp -= p.damage;
-              if (p.type === 'frost') p.target.slowTimer = 90;
-            }
-          }
-          scene.remove(p.mesh);
-          projectiles.splice(i, 1);
-        } else {
-          dir.normalize();
-          p.mesh.position.addScaledVector(dir, p.speed);
-        }
-      }
-
-      for (let i = enemies.length - 1; i >= 0; i--) {
-        if (enemies[i].hp <= 0) {
-          gold += enemies[i].reward;
-          createExplosionEffect(enemies[i].mesh.position, 0xfacc15);
-          scene.remove(enemies[i].mesh);
-          enemies.splice(i, 1);
-        }
-      }
-
-      if (waveInProgress && enemiesToSpawn === 0 && enemies.length === 0) {
-        waveInProgress = false;
-        startWaveBtn.disabled = false;
-        gold += 25 + wave * 5;
-      }
-
-      updateUI();
-    }
-
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      updateGame();
-      renderer.render(scene, camera);
-    }
-
-    animate();
-  </script>
+})();
+</script>
 </body>
 </html>
