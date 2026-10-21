@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>奶龍保衛戰 (3D Touch Fixed)</title>
+  <title>奶龍保衛戰 3D</title>
   <style>
     * {
       box-sizing: border-box;
@@ -50,8 +50,8 @@
     h1 {
       margin: 0;
       font-size: 18px;
-      color: #38bdf8;
-      text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+      color: #facc15;
+      text-shadow: 0 0 10px rgba(250, 204, 21, 0.4);
       display: flex;
       align-items: center;
       gap: 6px;
@@ -105,8 +105,8 @@
       transform: scale(0.98);
     }
     .tower-btn.active {
-      border-color: #38bdf8;
-      background: rgba(30, 58, 138, 0.7);
+      border-color: #facc15;
+      background: rgba(133, 77, 14, 0.7);
     }
     .tower-name { font-size: 13px; font-weight: bold; }
     .tower-cost { font-size: 12px; color: #facc15; font-weight: bold; }
@@ -119,11 +119,11 @@
       font-weight: bold;
       border: none;
       border-radius: 10px;
-      background: #38bdf8;
+      background: #facc15;
       color: #0f172a;
       cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+      box-shadow: 0 4px 12px rgba(250, 204, 21, 0.3);
     }
     .action-btn:active:not(:disabled) {
       transform: scale(0.97);
@@ -191,28 +191,28 @@
   <div id="canvas-container"></div>
 
   <div class="ui-overlay">
-    <h1>⚔️ 奶龍保衛戰 (3D)</h1>
+    <h1>🐲 奶龍保衛戰 (3D)</h1>
 
     <div class="stats-grid">
       <div class="stat-card">金幣: <div class="stat-val" id="gold-val">160</div></div>
       <div class="stat-card">城堡生命: <div class="stat-val hp" id="lives-val">15</div></div>
       <div class="stat-card">進攻波次: <div class="stat-val" id="wave-val">0</div></div>
-      <div class="stat-card">剩餘魔物: <div class="stat-val enemy" id="enemy-val">0</div></div>
+      <div class="stat-card">剩餘奶龍: <div class="stat-val enemy" id="enemy-val">0</div></div>
     </div>
 
     <div>
       <div class="section-title">選擇防禦塔</div>
       <div class="tower-select">
         <div class="tower-btn active" data-type="arrow">
-          <span class="tower-name">🏹 箭樓石塔</span>
+          <span class="tower-name">🏹 奶龍彈珠台</span>
           <span class="tower-cost">$50</span>
         </div>
         <div class="tower-btn" data-type="cannon">
-          <span class="tower-name">💣 重型鋼砲</span>
+          <span class="tower-name">💣 重型扭蛋機</span>
           <span class="tower-cost">$100</span>
         </div>
         <div class="tower-btn" data-type="frost">
-          <span class="tower-name">❄️ 冰晶法塔</span>
+          <span class="tower-name">❄️ 冰淇淋法塔</span>
           <span class="tower-cost">$75</span>
         </div>
       </div>
@@ -227,7 +227,7 @@
       </div>
     </div>
 
-    <button id="start-wave-btn" class="action-btn">⚔️ 開始魔物進攻</button>
+    <button id="start-wave-btn" class="action-btn">⚔️ 開始奶龍進攻</button>
   </div>
 
   <div class="controls-hint">💡 觸控提示：單指滑動旋轉視角 | 點一下草地直接放置防禦塔</div>
@@ -277,9 +277,9 @@
     }
 
     const TOWER_TYPES = {
-      arrow: { name: '箭樓石塔', cost: 50, range: 6, rate: 20, damage: 18, color: 0x38bdf8 },
-      cannon: { name: '重型鋼砲', cost: 100, range: 7, rate: 60, damage: 55, splash: 3, color: 0xef4444 },
-      frost: { name: '冰晶法塔', cost: 75, range: 5.5, rate: 35, damage: 12, slow: 0.5, color: 0xa855f7 }
+      arrow: { name: '奶龍彈珠台', cost: 50, range: 6, rate: 20, damage: 18, color: 0xfacc15 },
+      cannon: { name: '重型扭蛋機', cost: 100, range: 7, rate: 60, damage: 55, splash: 3, color: 0xf43f5e },
+      frost: { name: '冰淇淋法塔', cost: 75, range: 5.5, rate: 35, damage: 12, slow: 0.5, color: 0x38bdf8 }
     };
 
     const container = document.getElementById('canvas-container');
@@ -302,7 +302,7 @@
     controls.dampingFactor = 0.08;
     controls.maxPolarAngle = Math.PI / 2.15;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
 
     const dirLight = new THREE.DirectionalLight(0xfff5ea, 1.2);
@@ -327,7 +327,7 @@
         const isPath = isPathTile(c, r);
         const geo = new THREE.BoxGeometry(TILE_SIZE - 0.08, isPath ? 0.4 : 0.8, TILE_SIZE - 0.08);
         const mat = new THREE.MeshStandardMaterial({
-          color: isPath ? 0x475569 : ((c + r) % 2 === 0 ? 0x1e293b : 0x0f172a),
+          color: isPath ? 0x64748b : ((c + r) % 2 === 0 ? 0x166534 : 0x14532d),
           roughness: 0.8
         });
         const mesh = new THREE.Mesh(geo, mat);
@@ -344,9 +344,8 @@
     }
     scene.add(gridGroup);
 
-    // 點擊高亮指示框
     const hoverGeo = new THREE.BoxGeometry(TILE_SIZE, 0.15, TILE_SIZE);
-    const hoverMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.7 });
+    const hoverMat = new THREE.MeshBasicMaterial({ color: 0xfacc15, transparent: true, opacity: 0.7 });
     const hoverMesh = new THREE.Mesh(hoverGeo, hoverMat);
     hoverMesh.visible = false;
     scene.add(hoverMesh);
@@ -355,79 +354,85 @@
       const group = new THREE.Group();
       if (type === 'arrow') {
         const baseGeo = new THREE.CylinderGeometry(0.7, 0.8, 1.8, 8);
-        const baseMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.5 });
+        const baseMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.4 });
         const base = new THREE.Mesh(baseGeo, baseMat);
         base.position.y = 0.9;
         base.castShadow = true;
         group.add(base);
 
-        const roofGeo = new THREE.ConeGeometry(0.9, 0.8, 8);
-        const roofMat = new THREE.MeshStandardMaterial({ color: 0xb45309 });
-        const roof = new THREE.Mesh(roofGeo, roofMat);
-        roof.position.y = 2.1;
-        roof.castShadow = true;
-        group.add(roof);
+        const topGeo = new THREE.SphereGeometry(0.5, 8, 8);
+        const topMat = new THREE.MeshStandardMaterial({ color: 0xef4444 });
+        const top = new THREE.Mesh(topGeo, topMat);
+        top.position.y = 2.0;
+        top.castShadow = true;
+        group.add(top);
       } else if (type === 'cannon') {
         const baseGeo = new THREE.BoxGeometry(1.4, 0.8, 1.4);
-        const baseMat = new THREE.MeshStandardMaterial({ color: 0x334155 });
+        const baseMat = new THREE.MeshStandardMaterial({ color: 0xec4899 });
         const base = new THREE.Mesh(baseGeo, baseMat);
         base.position.y = 0.4;
         base.castShadow = true;
         group.add(base);
 
-        const barrelGeo = new THREE.CylinderGeometry(0.3, 0.35, 1.2, 12);
-        const barrelMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.2 });
-        const barrel = new THREE.Mesh(barrelGeo, barrelMat);
-        barrel.rotation.x = Math.PI / 3;
-        barrel.position.set(0, 1.0, 0.2);
-        barrel.castShadow = true;
-        group.add(barrel);
+        const domeGeo = new THREE.SphereGeometry(0.7, 12, 12, 0, Math.PI * 2, 0, Math.PI / 2);
+        const domeMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.2, transparent: true, opacity: 0.8 });
+        const dome = new THREE.Mesh(domeGeo, domeMat);
+        dome.position.y = 0.8;
+        group.add(dome);
       } else if (type === 'frost') {
         const baseGeo = new THREE.CylinderGeometry(0.5, 0.7, 1.2, 6);
-        const baseMat = new THREE.MeshStandardMaterial({ color: 0x475569 });
+        const baseMat = new THREE.MeshStandardMaterial({ color: 0xfbcfe8 });
         const base = new THREE.Mesh(baseGeo, baseMat);
         base.position.y = 0.6;
         base.castShadow = true;
         group.add(base);
 
-        const crystalGeo = new THREE.OctahedronGeometry(0.6, 0);
-        const crystalMat = new THREE.MeshStandardMaterial({ color: 0xc084fc, emissive: 0x7e22ce, roughness: 0.1 });
-        const crystal = new THREE.Mesh(crystalGeo, crystalMat);
-        crystal.position.y = 1.8;
-        crystal.castShadow = true;
-        group.add(crystal);
+        const iceGeo = new THREE.ConeGeometry(0.6, 1.2, 4);
+        const iceMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.1 });
+        const ice = new THREE.Mesh(iceGeo, iceMat);
+        ice.position.y = 1.8;
+        ice.castShadow = true;
+        group.add(ice);
       }
       return group;
     }
 
+    // 製作超萌奶龍怪物模型
     function create3DEnemyMesh(type) {
       const group = new THREE.Group();
-      if (type === 'goblin') {
-        const bodyGeo = new THREE.SphereGeometry(0.4, 8, 8);
-        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x22c55e });
-        const body = new THREE.Mesh(bodyGeo, bodyMat);
-        body.position.y = 0.4;
-        body.castShadow = true;
-        group.add(body);
-      } else if (type === 'wolf') {
-        const bodyGeo = new THREE.BoxGeometry(0.5, 0.5, 1.0);
-        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8 });
-        const body = new THREE.Mesh(bodyGeo, bodyMat);
-        body.position.y = 0.4;
-        body.castShadow = true;
-        group.add(body);
+      
+      // 奶龍肥嘟嘟的黃色圓身體
+      const bodyGeo = new THREE.SphereGeometry(type === 'golem' ? 0.7 : (type === 'wolf' ? 0.5 : 0.45), 12, 12);
+      const bodyMat = new THREE.MeshStandardMaterial({ color: 0xfde047, roughness: 0.5 });
+      const body = new THREE.Mesh(bodyGeo, bodyMat);
+      body.position.y = type === 'golem' ? 0.7 : 0.45;
+      body.castShadow = true;
+      group.add(body);
+
+      // 奶龍肚子 (稍微偏白或淺黃)
+      const bellyGeo = new THREE.SphereGeometry(0.35, 8, 8);
+      const bellyMat = new THREE.MeshStandardMaterial({ color: 0xfef08a });
+      const belly = new THREE.Mesh(bellyGeo, bellyMat);
+      belly.position.set(0, body.position.y - 0.05, 0.25);
+      group.add(belly);
+
+      // 頭上的小角
+      const hornGeo = new THREE.ConeGeometry(0.12, 0.3, 4);
+      const hornMat = new THREE.MeshStandardMaterial({ color: 0xf97316 });
+      const horn = new THREE.Mesh(hornGeo, hornMat);
+      horn.position.set(0, body.position.y + 0.45, 0);
+      group.add(horn);
+
+      if (type === 'wolf') {
+        body.scale.set(1.2, 1, 1.3); // 稍微大一點的進階奶龍
       } else if (type === 'golem') {
-        const bodyGeo = new THREE.BoxGeometry(0.9, 1.2, 0.9);
-        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x78716c, roughness: 0.9 });
-        const body = new THREE.Mesh(bodyGeo, bodyMat);
-        body.position.y = 0.6;
-        body.castShadow = true;
-        group.add(body);
+        body.scale.set(1.5, 1.4, 1.5); // 巨型胖奶龍王
+        horn.scale.set(1.5, 1.5, 1.5);
       }
+
       return group;
     }
 
-    // --- 5. 靈敏且穩定的點擊與放置系統 ---
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -454,10 +459,9 @@
       const clientX = e.clientX || (e.touches && e.touches[0].clientX);
       const clientY = e.clientY || (e.touches && e.touches[0].clientY);
       if (Math.hypot(clientX - startX, clientY - startY) > 12) {
-        hasMoved = true; // 超過 12 像素視為拖曳旋轉鏡頭
+        hasMoved = true;
       }
 
-      // 即時顯示指到的格子高亮
       mouse.x = (clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(clientY / window.innerHeight) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
@@ -473,7 +477,7 @@
 
     function onPointerUp(e) {
       if (e.target.tagName === 'BUTTON' || e.target.closest('.ui-overlay')) return;
-      if (hasMoved) return; // 如果剛剛是在旋轉視角，不執行建塔
+      if (hasMoved) return;
 
       const clientX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
       const clientY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
@@ -499,7 +503,6 @@
 
         selectedPlacedTower = null;
 
-        // 如果不是道路，直接建造防禦塔！
         if (!hit.userData.isPath) {
           const config = TOWER_TYPES[selectedType];
           if (gold >= config.cost) {
@@ -525,12 +528,10 @@
       }
     }
 
-    // 綁定事件並取消事件預設防禦阻擋
     window.addEventListener('pointerdown', onPointerDown);
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('pointerup', onPointerUp);
 
-    // UI 按鈕監聽
     document.querySelectorAll('.tower-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.tower-btn').forEach(b => b.classList.remove('active'));
@@ -599,17 +600,16 @@
       }
     }
 
-    // --- 6. 遊戲邏輯與 3D 渲染主迴圈 ---
     function spawnEnemy() {
       const typeRand = Math.random();
       let type = 'goblin';
       let hpMult = 1;
       let speed = 0.05;
 
-      if (wave > 2 && typeRand > 0.5) { type = 'wolf'; speed = 0.08; hpMult = 1.2; }
-      else if (wave > 4 && typeRand > 0.8) { type = 'golem'; speed = 0.03; hpMult = 3.2; }
+      if (wave > 2 && typeRand > 0.5) { type = 'wolf'; speed = 0.07; hpMult = 1.3; }
+      else if (wave > 4 && typeRand > 0.85) { type = 'golem'; speed = 0.03; hpMult = 3.5; }
 
-      const maxHp = Math.floor(45 * Math.pow(1.26, wave - 1) * hpMult);
+      const maxHp = Math.floor(50 * Math.pow(1.25, wave - 1) * hpMult);
       const mesh = create3DEnemyMesh(type);
       mesh.position.copy(waypoints[0]);
       scene.add(mesh);
@@ -684,7 +684,7 @@
             scene.remove(enemy.mesh);
             enemies.splice(i, 1);
             if (lives <= 0) {
-              alert('💥 城堡淪陷！遊戲結束！成功抵擋 ' + (wave - 1) + ' 波魔物。');
+              alert('💥 城堡被奶龍大軍攻陷了！遊戲結束！成功抵擋 ' + (wave - 1) + ' 波進攻。');
               location.reload();
             }
             continue;
